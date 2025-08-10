@@ -7,82 +7,55 @@ import {
   TextInput,
   Title,
   Text,
-  Select
+  Select,
 } from "@mantine/core";
-import { useState } from "react";
-
-interface ItemRow {
-  section: string;
-  size: string;
-  qty: number;
-  thickness: string;
-  color: string;
-  rate: number;
-  discount: number;
-}
-
+import axios from "axios";
+import { useBilling } from "./context/AluminumContext";
+import "../App.css";
+// import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 export default function AluminumBilling() {
-  const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [date, setDate] = useState("");
-  const [customerName, setCustomerName] = useState("");
-   const [companyName, setCompanyName] = useState("");
-  const [rows, setRows] = useState<ItemRow[]>([
-    {
-      section: "",
-      size: "",
-      qty: 0,
-      thickness: "",
-      color: "",
-      rate: 0,
-      discount: 0,
-    },
-  ]);
+  const navigate = useNavigate();
+  let invoiceNumber = 1;
 
-  const handleChange = <T extends keyof ItemRow>(
-    index: number,
-    field: T,
-    value: ItemRow[T]
+  const {
+    formData,
+    addItem,
+    removeItem,
+    updateItem,
+    updateCustomerInfo,
+    calculateTotal,
+  } = useBilling();
+
+  const submitBill = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/aluminum/add-aluminum-bill",
+        formData
+      );
+
+      console.log("Bill submitted successfully:", response.data);
+      alert("Bill saved!");
+    } catch (error: any) {
+      console.error("Error submitting bill:", error);
+      alert("Error saving bill");
+    }
+  };
+
+  const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    updateCustomerInfo(name as any, value);
+  };
+
+  const handleItemChange = (
+    id: number,
+    field: string,
+    value: string | number
   ) => {
-    const updated = [...rows];
-    updated[index][field] = value;
-    setRows(updated);
+    updateItem(id, field as any, value);
   };
 
-  const addRow = () => {
-    setRows([
-      ...rows,
-      {
-        section: "",
-        size: "",
-        qty: 0,
-        thickness: "",
-        color: "",
-        rate: 0,
-        discount: 0,
-      },
-    ]);
-  };
-
-  const removeRow = (index: number) => {
-    const updated = [...rows];
-    updated.splice(index, 1);
-    setRows(updated);
-  };
-
-  const calculateDiscounted = (row: ItemRow) => {
-    const sizeNum = parseFloat(row.size) || 0;
-    const total = sizeNum * row.qty * row.rate;
-    return total - (total * row.discount) / 100;
-  };
-
-  const totalAmount = rows.reduce((acc, row) => {
-    const sizeNum = parseFloat(row.size) || 0;
-    return acc + sizeNum * row.qty * row.rate;
-  }, 0);
-
-  const totalDiscounted = rows.reduce((acc, row) => {
-    return acc + calculateDiscounted(row);
-  }, 0);
+  const { total, discountedAmount } = calculateTotal();
 
   return (
     <Box p="md">
@@ -97,83 +70,111 @@ export default function AluminumBilling() {
             boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
           }}
         >
-                    {/* Logo & Header */}
-          <Box mb="lg" style={{ borderBottom: "1px solid #ddd", paddingBottom: "1rem" }}>
+          {/* Header */}
+          <Box
+            mb="lg"
+            style={{ borderBottom: "1px solid #ddd", paddingBottom: "1rem" }}
+          >
             <Group justify="space-between" align="flex-start" wrap="nowrap">
-              {/* Left: Logo & Tagline */}
-              <Stack gap={4} align="flex-start">
-                <img
-                  src="/Logo.png"
-                  alt="Company Logo"
-                  style={{ width: 180, height: 80, objectFit: "contain", borderRadius: 8 }}
-                />
-                <Text size="sm" c="dimmed" style={{ fontStyle: "italic" }}>
+              <Stack gap={2} align="flex-end">
+                <Title
+                  order={1}
+                  style={{ fontSize: "20px", letterSpacing: 2 }}
+                  mr={25}
+                  mb={3}
+                >
+                  Wahid Sons
+                </Title>
+                <Text
+                  size="xs"
+                  c="gray"
+                  style={{ marginTop: -6, wordSpacing: 18 }}
+                >
                   Aluminum Hardware Store
                 </Text>
-              </Stack>
-          
-              {/* Middle: Address */}
-              <Stack gap={2} align="center" style={{ flexGrow: 1 }}>
-                <Title order={3} style={{ marginBottom: -4 }}>Address</Title>
-                <Text size="sm" c="gray">
-                 Badozai Street, Outside Bohar Gate, Multan, Pakistan
-                </Text>
-                <Text size="sm" c="gray">
-                  Monday–Saturday | 10 AM – 10 PM
-                </Text>
-              </Stack>
-          
-              {/* Right: Business Info */}
-              <Stack gap={4} align="flex-end">
-                <Title order={1} style={{ margin: 0, fontWeight: 700, letterSpacing: 4 }}>Wahid Sons</Title>
-                <Text size="sm" c="gray" style={{ marginTop: -6, wordSpacing: 34 }}>
-                  Aluminum Hardware Store
-                </Text>
-          
+
                 <Stack gap={2} mt={6}>
                   <Group gap="xs">
-                    <Text fw={500}>Haji Umer Akram:</Text>
-                    <Text c="gray">0300-6341646</Text>
+                    <Text size="xs" fw={500}>
+                      Haji Umer Akram:
+                    </Text>
+                    <Text size="xs" c="gray">
+                      0300-6341646
+                    </Text>
                   </Group>
                   <Group gap="xs">
-                    <Text fw={500}>Haji Mak'ki Umer:</Text>
-                    <Text c="gray">0300-0793062</Text>
+                    <Text size="xs" fw={500}>
+                      Haji Mak'ki Umer:
+                    </Text>
+                    <Text size="xs" c="gray">
+                      0300-0793062
+                    </Text>
                   </Group>
                 </Stack>
               </Stack>
+
+              <Stack>
+                <img
+                  src="/Logo.jpg"
+                  alt="Company Logo"
+                  style={{
+                    width: 150,
+                    height: 60,
+                    objectFit: "cover",
+                    borderRadius: 8,
+                  }}
+                />
+              </Stack>
+
+              <Stack gap={2} align="center">
+                <Title order={4} style={{ marginBottom: -4 }}>
+                  Address
+                </Title>
+                <Text size="xs" c="gray">
+                  Badozai Street, Outside Bohar Gate, Multan, Pakistan
+                </Text>
+                <Text size="xs" c="gray">
+                  Saturday–Thursday | 09 AM – 08 PM
+                </Text>
+              </Stack>
             </Group>
           </Box>
-          
+
+          {/* Customer Info */}
           <Group justify="space-between">
             <TextInput
-              label="Invoice No."
+              type="text"
               value={invoiceNumber}
-              onChange={(e) => setInvoiceNumber(e.currentTarget.value)}
+              disabled
               w={200}
+              mt={20}
             />
             <TextInput
               label="Customer Name"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.currentTarget.value)}
+              name="customerName"
+              value={formData.customerName}
+              onChange={handleCustomerChange}
               w={260}
             />
             <TextInput
-              label="Date"
-              value={date}
-              onChange={(e) => setDate(e.currentTarget.value)}
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleCustomerChange}
               w={260}
+              mt={20}
             />
-             <TextInput
+            <TextInput
               label="Company Name"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.currentTarget.value)}
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleCustomerChange}
               w={250}
             />
-            <TextInput label="City" value={"Multan"} readOnly w={260} />
+            <TextInput label="City" w={260} defaultValue={"Multan"} />
           </Group>
 
-          <Box mt="md" />
-
+          {/* Items Table */}
           <Table withTableBorder highlightOnHover mt={20}>
             <thead>
               <tr>
@@ -190,80 +191,96 @@ export default function AluminumBilling() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, index) => (
-                <tr key={index} style={{ textAlign: "center" }}>
-                  <td style={{ textAlign: "center" }}>{index + 1}</td>
-                  <td style={{ textAlign: "center" }}>
-                    <TextInput
-                      value={row.section}
-                      onChange={(e) =>
-                        handleChange(index, "section", e.currentTarget.value)
-                      }
-                    
-                      
-                    />
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <TextInput
-                      value={row.size}
-                      onChange={(e) =>
-                        handleChange(index, "size", e.currentTarget.value)
-                      }
-                      w={100}
-                    />
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <TextInput
-                      type="number"
-                      value={row.qty}
-                      onChange={(e) =>
-                        handleChange(index, "qty", Number(e.currentTarget.value))
-                      }
-                       w={100}
-                    />
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                   <Select
-  data={["0.9", "1.1", "1.2", "1.4", "1.6", "2.0"]}
-  value={row.thickness}
-  onChange={(value) => handleChange(index, "thickness", value || "")}
-  w={100}
-   checkIconPosition="right"
-/>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                   <Select
-  data={["CH", "BLM", "WT", "SL"]}
-  value={row.color}
-  onChange={(value) => handleChange(index, "color", value || "")}
-  defaultValue={"CH"}
-   checkIconPosition="right"
-   allowDeselect
-/>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <TextInput
-                      type="number"
-                      value={row.rate}
-                      onChange={(e) =>
-                        handleChange(index, "rate", Number(e.currentTarget.value))
-                      }
-                      
-                    />
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <TextInput
-                      type="number"
-                      value={row.discount}
-                      onChange={(e) =>
-                        handleChange(index, "discount", Number(e.currentTarget.value))
-                      }
-                       w={100}
-                    />
-                  </td>
-                  <td style={{ textAlign: "center" }}>{calculateDiscounted(row).toFixed(2)}</td>
+              {formData.products.map((item, index) => (
+                <tr key={item.id}>
+                  <td>{index + 1}</td>
                   <td>
-                    <Button color="red" size="xs" onClick={() => removeRow(index)}>
+                    <TextInput
+                      value={item.section}
+                      onChange={(e) =>
+                        handleItemChange(
+                          item.id,
+                          "section",
+                          e.currentTarget.value
+                        )
+                      }
+                    />
+                  </td>
+                  <td>
+                    <TextInput
+                      value={item.size}
+                      onChange={(e) =>
+                        handleItemChange(item.id, "size", e.currentTarget.value)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <TextInput
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleItemChange(
+                          item.id,
+                          "quantity",
+                          Number(e.currentTarget.value)
+                        )
+                      }
+                    />
+                  </td>
+                  <td>
+                    <Select
+                      data={["0.9", "1.1", "1.2", "1.4", "1.6", "2.0"]}
+                      value={item.gaje}
+                      onChange={(value) =>
+                        handleItemChange(item.id, "gaje", value || "")
+                      }
+                      checkIconPosition="right"
+                    />
+                  </td>
+                  <td>
+                    <Select
+                      data={["CH", "BLM", "WT", "SL"]}
+                      value={item.color}
+                      onChange={(value) =>
+                        handleItemChange(item.id, "color", value || "")
+                      }
+                      checkIconPosition="right"
+                      allowDeselect
+                    />
+                  </td>
+                  <td>
+                    <TextInput
+                      type="number"
+                      value={item.rate}
+                      onChange={(e) =>
+                        handleItemChange(
+                          item.id,
+                          "rate",
+                          Number(e.currentTarget.value)
+                        )
+                      }
+                    />
+                  </td>
+                  <td>
+                    <TextInput
+                      type="number"
+                      value={item.discount}
+                      onChange={(e) =>
+                        handleItemChange(
+                          item.id,
+                          "discount",
+                          Number(e.currentTarget.value)
+                        )
+                      }
+                    />
+                  </td>
+                  <td>{item.amount.toFixed(2)}</td>
+                  <td>
+                    <Button
+                      color="red"
+                      size="xs"
+                      onClick={() => removeItem(item.id)}
+                    >
                       Remove
                     </Button>
                   </td>
@@ -272,28 +289,57 @@ export default function AluminumBilling() {
             </tbody>
           </Table>
 
-          <Group justify="end" mt="md">
+          {/* Totals */}
+
+          <Group mt="md">
             <Box
               p="md"
               style={{
                 backgroundColor: "#f9f9f9",
                 borderRadius: 8,
                 border: "1px solid #eee",
-                minWidth: 250,
               }}
             >
-              <div><strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}</div>
-              <div><strong>Discounted Amount:</strong> Rs. {totalDiscounted.toFixed(2)}</div>
+              <div style={{ display: "flex", gap: "20px" }}>
+                <div
+                  style={{
+                    backgroundColor: "#f9f9f9",
+                    border: "1px solid #eee",
+                    padding: "5px",
+                  }}
+                >
+                  <strong>Discounted Amount:</strong> Rs.{" "}
+                  {discountedAmount.toFixed(2)}
+                </div>
+                <div
+                  style={{
+                    backgroundColor: "#f9f9f9",
+                    border: "1px solid #eee",
+                    padding: "5px",
+                  }}
+                >
+                  <strong>Total Amount:</strong> Rs. {total.toFixed(2)}
+                </div>
+              </div>
             </Box>
           </Group>
         </Box>
-        {/* BILL CONTENT ENDS HERE */}
 
-       <Group justify="space-between" mt="xl">
-  <Button onClick={addRow}>Add Item</Button>
-  <Button >Save Bill</Button>
-  <Button onClick={() => window.print()}>Print Bill</Button>
-</Group>
+        {/* Action Buttons */}
+        <Group justify="space-between" mt="xl">
+          <Button onClick={addItem}>Add Item</Button>
+          <Button onClick={submitBill}>Save Bill</Button>
+          <Button onClick={() => window.print()}>Print Bill</Button>
+        </Group>
+        <Group justify="space-between" mt="xl">
+          <Button onClick={() => navigate("/hardware")}>H Billing</Button>
+          <Button onClick={() => navigate("/aluminum-bills")} p={10}>
+            A-Bill Save
+          </Button>
+          <Button onClick={() => navigate("/hardware-bills")} p={10}>
+            H-Bill Save
+          </Button>
+        </Group>
       </Stack>
     </Box>
   );

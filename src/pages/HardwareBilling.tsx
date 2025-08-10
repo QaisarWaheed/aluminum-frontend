@@ -8,49 +8,45 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { useState } from "react";
-
-interface ItemRow {
-  product: string;
-  rate: number;
-  qty: number;
-}
+import { useHardwareBilling } from "./context/HardwareContext";
+import axios from "axios";
 
 export default function HardwareBilling() {
-  const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [date, setDate] = useState("");
-  const [customerName, setCustomerName] = useState("");
-  const [previousAmount, setPreviousAmount] = useState(0);
-  const [rows, setRows] = useState<ItemRow[]>([
-    { product: "", rate: 0, qty: 0 },
-  ]);
+  const { formData, addItem, removeItem, updateItem, updateCustomerInfo } =
+    useHardwareBilling();
 
-  const handleChange = <T extends keyof ItemRow>(
-    index: number,
-    field: T,
-    value: ItemRow[T]
+  const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    updateCustomerInfo(name as any, value);
+  };
+
+  const handleItemChange = (
+    id: number,
+    field: keyof (typeof formData.products)[number],
+    value: string | number
   ) => {
-    const updated = [...rows];
-    updated[index][field] = value;
-    setRows(updated);
+    updateItem(id, field, value);
   };
 
-  const addRow = () => {
-    setRows([...rows, { product: "", rate: 0, qty: 0 }]);
+  const submitBill = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/hardware/add-hardware",
+        formData
+      );
+      console.log("Bill submitted successfully:", response.data);
+      alert("Bill saved!");
+    } catch (error: any) {
+      console.error("Error submitting bill:", error);
+      alert("Error saving bill");
+    }
   };
 
-  const removeRow = (index: number) => {
-    const updated = [...rows];
-    updated.splice(index, 1);
-    setRows(updated);
-  };
-
-  const calculateGross = (row: ItemRow) => {
-    return row.qty * row.rate;
-  };
-
-  const totalAmount = rows.reduce((acc, row) => acc + calculateGross(row), 0);
-  const grandTotal = totalAmount + previousAmount;
+  const totalAmount = formData.products.reduce(
+    (acc, item) => acc + item.quantity * item.rate,
+    0
+  );
+  const grandTotal = totalAmount + Number(formData.previousAmount);
 
   return (
     <Box p="md" style={{ fontSize: "12px" }}>
@@ -65,22 +61,38 @@ export default function HardwareBilling() {
             fontSize: "12px",
           }}
         >
-          {/* Header */}
-          <Box mb="lg" style={{ borderBottom: "1px solid #ddd", paddingBottom: "1rem" }}>
-            <Group justify="space-between" align="flex-start" wrap="nowrap">
-              <Stack gap={4} align="flex-start">
+          {/* HEADER */}
+          <Box
+            mb="lg"
+            style={{ borderBottom: "1px solid #ddd", paddingBottom: "1rem" }}
+          >
+            <Group justify="space-between" align="flex-start" wrap="wrap">
+              {/* Logo */}
+              <Stack gap={4} align="flex-start" miw={150}>
                 <img
                   src="/Logo.png"
                   alt="Company Logo"
-                  style={{ width: 140, height: 60, objectFit: "contain", borderRadius: 8 }}
+                  style={{
+                    width: 140,
+                    height: 60,
+                    objectFit: "contain",
+                    borderRadius: 8,
+                  }}
                 />
                 <Text size="xs" c="dimmed" style={{ fontStyle: "italic" }}>
                   Aluminum Hardware Store
                 </Text>
               </Stack>
 
-              <Stack gap={2} align="center" style={{ flexGrow: 1 }}>
-                <Title order={4} style={{ marginBottom: -4 }}>Address</Title>
+              {/* Address */}
+              <Stack
+                gap={2}
+                align="center"
+                style={{ flexGrow: 1, minWidth: 200 }}
+              >
+                <Title order={4} style={{ marginBottom: -4 }}>
+                  Address
+                </Title>
                 <Text size="xs" c="gray">
                   Badozai Street, Outside Bohar Gate, Multan, Pakistan
                 </Text>
@@ -89,147 +101,191 @@ export default function HardwareBilling() {
                 </Text>
               </Stack>
 
-              <Stack gap={2} align="flex-end">
-                <Title order={2} style={{ fontSize: "18px", margin: 0, letterSpacing: 2 }}>Wahid Sons</Title>
-                <Text size="xs" c="gray" style={{ marginTop: -6, wordSpacing: 18 }}>
+              {/* Contact */}
+              <Stack gap={2} align="flex-end" miw={150}>
+                <Title
+                  order={2}
+                  style={{ fontSize: "18px", margin: 0, letterSpacing: 2 }}
+                >
+                  Wahid Sons
+                </Title>
+                <Text
+                  size="xs"
+                  c="gray"
+                  style={{ marginTop: -6, wordSpacing: 18 }}
+                >
                   Aluminum Hardware Store
                 </Text>
 
                 <Stack gap={2} mt={6}>
                   <Group gap="xs">
-                    <Text size="xs" fw={500}>Haji Umer Akram:</Text>
-                    <Text size="xs" c="gray">0300-6341646</Text>
+                    <Text size="xs" fw={500}>
+                      Haji Umer Akram:
+                    </Text>
+                    <Text size="xs" c="gray">
+                      0300-6341646
+                    </Text>
                   </Group>
                   <Group gap="xs">
-                    <Text size="xs" fw={500}>Haji Mak'ki Umer:</Text>
-                    <Text size="xs" c="gray">0300-0793062</Text>
+                    <Text size="xs" fw={500}>
+                      Haji Mak'ki Umer:
+                    </Text>
+                    <Text size="xs" c="gray">
+                      0300-0793062
+                    </Text>
                   </Group>
                 </Stack>
               </Stack>
             </Group>
           </Box>
 
-          {/* Input Fields */}
-          <Group justify="space-between" mt={10}>
+          {/* BILL INFO */}
+          <Group justify="space-between" wrap="wrap" gap="sm" mt={10}>
             <TextInput
               size="xs"
               label="Invoice No."
-              value={invoiceNumber}
-              onChange={(e) => setInvoiceNumber(e.currentTarget.value)}
-              w={250}
+              // value={formData.invoiceNumber || ""}
+              readOnly
+              w={{ base: "100%", sm: 250 }}
             />
             <TextInput
+              label="Customer Name"
               size="xs"
-              label="Customer name"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.currentTarget.value)}
-              w={250}
+              name="customerName"
+              value={formData.customerName}
+              onChange={handleCustomerChange}
+              w={{ base: "100%", sm: 250 }}
             />
             <TextInput
+              type="date"
               size="xs"
               label="Date"
-              value={date}
-              onChange={(e) => setDate(e.currentTarget.value)}
-              w={250}
+              name="date"
+              value={formData.date}
+              onChange={handleCustomerChange}
+              w={{ base: "100%", sm: 250 }}
             />
-            <TextInput size="xs" label="City" value="Multan" readOnly w={250} />
+            <TextInput
+              size="xs"
+              label="City"
+              value="Multan"
+              readOnly
+              w={{ base: "100%", sm: 250 }}
+            />
           </Group>
 
-          {/* Table */}
-          <Table withTableBorder highlightOnHover mt="md" style={{ fontSize: "12px" }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: "center" }}>S/No</th>
-                <th style={{ textAlign: "start" }}>Quantity</th>
-                <th style={{ textAlign: "start" }}>Product Name</th>
-                <th style={{ textAlign: "start" }}>Rate</th>
-                <th style={{ textAlign: "center" }}>Gross Amount</th>
-                <th style={{ textAlign: "center" }}>Remove</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, index) => (
-                <tr key={index}>
-                  <td style={{ textAlign: "center" }}>{index + 1}</td>
-                  <td>
-                    <TextInput
-                      size="xs"
-                      type="number"
-                      w={120}
-                      value={row.qty}
-                      onChange={(e) =>
-                        handleChange(index, "qty", Number(e.currentTarget.value))
-                      }
-                    />
-                  </td>
-                  <td>
-                    <TextInput
-                      size="xs"
-                      value={row.product}
-                       w={200}
-                      onChange={(e) =>
-                        handleChange(index, "product", e.currentTarget.value)
-                      }
-                    />
-                  </td>
-                  <td>
-                    <TextInput
-                      size="xs"
-                      type="number"
-                      value={row.rate}
-                       w={120}
-                      onChange={(e) =>
-                      handleChange(index, "rate", Number(e.currentTarget.value))
-                      }
-                      
-                    />
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    {calculateGross(row).toFixed(2)}
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <Button size="xs" color="red" onClick={() => removeRow(index)}>
-                      Remove
-                    </Button>
-                  </td>
+          {/* PRODUCTS TABLE */}
+          <Box maw={900} mx="auto" mt="md">
+            <Table withTableBorder highlightOnHover mt={20}>
+              <thead>
+                <tr>
+                  <th>S/No</th>
+                  <th>Quantity</th>
+                  <th>Product Name</th>
+                  <th>Rate</th>
+                  <th>Amount</th>
+                  <th>Remove</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {formData.products.map((item, index) => (
+                  <tr key={item.id}>
+                    <td>{index + 1}</td>
+                    <td>
+                      <TextInput
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) =>
+                          handleItemChange(
+                            item.id,
+                            "quantity",
+                            Number(e.currentTarget.value)
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <TextInput
+                        value={item.productName}
+                        onChange={(e) =>
+                          handleItemChange(
+                            item.id,
+                            "productName",
+                            e.currentTarget.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <TextInput
+                        type="number"
+                        value={item.rate}
+                        onChange={(e) =>
+                          handleItemChange(
+                            item.id,
+                            "rate",
+                            Number(e.currentTarget.value)
+                          )
+                        }
+                      />
+                    </td>
+                    <td>{(item.quantity * item.rate).toFixed(2)}</td>
+                    <td>
+                      <Button
+                        color="red"
+                        size="xs"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        Remove
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
 
-          {/* Totals */}
-          <Group justify="end" mt="md">
-            <Box
-              p="md"
-              style={{
-                fontSize: "12px",
-                backgroundColor: "#f9f9f9",
-                borderRadius: 8,
-                border: "1px solid #eee",
-                minWidth: 250,
-              }}
-            >
-              <div><strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}</div>
-              <TextInput
-                size="xs"
-                label="Previous Amount"
-                type="number"
-                value={previousAmount}
-                onChange={(e) => setPreviousAmount(Number(e.currentTarget.value))}
-                mt="xs"
-              />
-              <div style={{ marginTop: 8 }}>
-                <strong>Grand Total:</strong> Rs. {grandTotal.toFixed(2)}
-              </div>
-            </Box>
-          </Group>
+            {/* TOTALS */}
+            <Group justify="end" mt="md" wrap="wrap">
+              <Box
+                p="md"
+                style={{
+                  fontSize: "12px",
+                  backgroundColor: "#f9f9f9",
+                  borderRadius: 8,
+                  border: "1px solid #eee",
+                  minWidth: 250,
+                }}
+              >
+                <div>
+                  <strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}
+                </div>
+                <TextInput
+                  size="xs"
+                  label="Previous Amount"
+                  type="number"
+                  name="previousAmount"
+                  value={formData.previousAmount}
+                  onChange={handleCustomerChange}
+                  mt="xs"
+                />
+                <div style={{ marginTop: 8 }}>
+                  <strong>Grand Total:</strong> Rs. {grandTotal}
+                </div>
+              </Box>
+            </Group>
+          </Box>
         </Box>
 
-        {/* Buttons */}
-        <Group justify="space-between" mt="xl">
-          <Button size="xs" onClick={addRow}>Add Item</Button>
-          <Button size="xs">Save Bill</Button>
-          <Button size="xs" onClick={() => window.print()}>Print Bill</Button>
+        <Group justify="space-between" mt="xl" maw={900} mx="auto" wrap="wrap">
+          <Button size="xs" onClick={() => addItem()}>
+            Add Item
+          </Button>
+          <Button size="xs" onClick={submitBill}>
+            Save Bill
+          </Button>
+          <Button size="xs" onClick={() => window.print()}>
+            Print Bill
+          </Button>
         </Group>
       </Stack>
     </Box>

@@ -1,0 +1,57 @@
+/* Add this at the bottom of App.css */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-size: 12px;
+  }
+
+  /* Remove extra padding/margin */
+  #root,
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  /* Hide buttons when printing */
+  button,
+  .mantine-Button-root {
+    display: none !important;
+  }
+
+  /* Keep bill container full width */
+  #bill-content {
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  /* Prevent table breaking */
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    border: 1px solid black !important;
+    border-collapse: collapse !important;
+  }
+
+  th,
+  td {
+    padding: 4px !important;
+    text-align: center !important;
+  }
+
+  /* Avoid page breaks inside table rows */
+  tr {
+    page-break-inside: avoid !important;
+  }
+
+  /* Ensure header stays on one page */
+  #bill-content > div:first-child {
+    page-break-after: avoid !important;
+  }
+}
