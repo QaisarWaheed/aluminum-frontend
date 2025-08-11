@@ -10,8 +10,11 @@ import {
 } from "@mantine/core";
 import { useHardwareBilling } from "./context/HardwareContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function HardwareBilling() {
+  const navigate = useNavigate();
   const { formData, addItem, removeItem, updateItem, updateCustomerInfo } =
     useHardwareBilling();
 
@@ -28,20 +31,53 @@ export default function HardwareBilling() {
     updateItem(id, field, value);
   };
 
+  useEffect(() => {
+    fetch("http://localhost:3000/hardware/next-invoice-id")
+      .then((res) => res.json())
+      .then((data) => (formData.invoiceNo = data.nextId));
+  }, []);
+
+  useEffect(() => {
+    const fetchLatestInvoiceNo = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/hardware/latest-invoice-no"
+        );
+        updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1); // next available number
+      } catch (error) {
+        console.error("Error fetching latest invoice number:", error);
+      }
+    };
+
+    fetchLatestInvoiceNo();
+  }, []);
+
   const submitBill = async () => {
     try {
       const response = await axios.post(
         "http://localhost:3000/hardware/add-hardware",
         formData
       );
+
       console.log("Bill submitted successfully:", response.data);
       alert("Bill saved!");
+
+      if (typeof response.data.invoiceNo === "number") {
+        updateCustomerInfo("invoiceNo", response.data.invoiceNo);
+      }
+
+      window.location.reload();
     } catch (error: any) {
-      console.error("Error submitting bill:", error);
-      alert("Error saving bill");
+      if (axios.isAxiosError(error)) {
+        alert(
+          "Error saving bill: " +
+            (error.response?.data?.message || error.message)
+        );
+      } else {
+        alert("Error saving bill: " + error.message);
+      }
     }
   };
-
   const totalAmount = formData.products.reduce(
     (acc, item) => acc + item.quantity * item.rate,
     0
@@ -142,10 +178,11 @@ export default function HardwareBilling() {
           {/* BILL INFO */}
           <Group justify="space-between" wrap="wrap" gap="sm" mt={10}>
             <TextInput
-              size="xs"
-              label="Invoice No."
-              // value={formData.invoiceNumber || ""}
-              readOnly
+              type="number"
+              label="Invoice No"
+              name="invoiceNo"
+              value={formData.invoiceNo || ""}
+              onChange={handleCustomerChange}
               w={{ base: "100%", sm: 250 }}
             />
             <TextInput
@@ -285,6 +322,15 @@ export default function HardwareBilling() {
           </Button>
           <Button size="xs" onClick={() => window.print()}>
             Print Bill
+          </Button>
+        </Group>
+        <Group justify="space-between" mt="xl">
+          <Button onClick={() => navigate("/hardware")}>H Billing</Button>
+          <Button onClick={() => navigate("/aluminum-bills")} p={10}>
+            A-Bill Save
+          </Button>
+          <Button onClick={() => navigate("/hardware-bills")} p={10}>
+            H-Bill Save
           </Button>
         </Group>
       </Stack>

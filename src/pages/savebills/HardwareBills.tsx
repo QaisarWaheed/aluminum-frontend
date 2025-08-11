@@ -1,15 +1,88 @@
-import { useState } from "react";
-import { TextInput } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { Table, Loader, Center } from "@mantine/core";
+import axios from "axios";
 
-const HardwareBills = () => {
-  const [value, setValue] = useState("");
+interface Invoice {
+  _id: string;
+  invoiceNo: number;
+  date: string;
+  customerName: string;
+  totalAmount: number;
+  pdfUrl?: string; // URL to the saved PDF in backend
+}
+
+export default function HardwareBills() {
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/hardware/allInvoices"
+        );
+        setInvoices(res.data);
+      } catch (err) {
+        console.error("Error fetching invoices", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvoices();
+  }, []);
+
+  const downloadInvoice = async (id: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/harware/download/${id}`,
+        {
+          method: "GET",
+        }
+      );
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `invoice-${id}.pdf`; // or .jpg
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error downloading invoice:", err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Center style={{ height: "100vh" }}>
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
   return (
-    <TextInput
-      value={value}
-      placeholder="Search hardware bills"
-      onChange={(event) => setValue(event.currentTarget.value)}
-      m={"md"}
-    />
+    <Table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Date</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {invoices.map((inv) => (
+          <tr key={inv._id}>
+            <td>{inv.invoiceNo}</td>
+            <td>{new Date(inv.date).toLocaleDateString()}</td>
+            <td>{inv.totalAmount}</td>
+            <td>
+              <button onClick={() => downloadInvoice(inv._id)}>Download</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
   );
-};
-export default HardwareBills;
+}

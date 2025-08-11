@@ -12,12 +12,10 @@ import {
 import axios from "axios";
 import { useBilling } from "./context/AluminumContext";
 import "../App.css";
-// import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { toJpeg } from "html-to-image";
 export default function AluminumBilling() {
-  const navigate = useNavigate();
-  let invoiceNumber = 1;
-
   const {
     formData,
     addItem,
@@ -26,6 +24,45 @@ export default function AluminumBilling() {
     updateCustomerInfo,
     calculateTotal,
   } = useBilling();
+  const navigate = useNavigate();
+  const [invoiceNo, setInvoiceNo] = useState();
+  const billRef = useRef<HTMLDivElement>(null);
+  const saveAsImage = async () => {
+    let dataUrl;
+    try {
+      if (billRef.current) {
+        dataUrl = await toJpeg(billRef.current, { quality: 0.95 });
+        const link = document.createElement("a");
+        link.download = "bill.jpg";
+        link.href = dataUrl;
+        link.click();
+        window.print();
+      }
+    } catch (error) {
+      console.error("Error saving bill as image", error);
+    }
+  };
+
+  useEffect(() => {
+    fetch("http://localhost:3000/aluminum/next-invoice-id")
+      .then((res) => res.json())
+      .then((data) => (formData.invoiceNo = data.nextId));
+  }, []);
+
+  useEffect(() => {
+    const fetchLatestInvoiceNo = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/aluminum/latest-invoice-no"
+        );
+        updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1); // next available number
+      } catch (error) {
+        console.error("Error fetching latest invoice number:", error);
+      }
+    };
+
+    fetchLatestInvoiceNo();
+  }, []);
 
   const submitBill = async () => {
     try {
@@ -36,9 +73,21 @@ export default function AluminumBilling() {
 
       console.log("Bill submitted successfully:", response.data);
       alert("Bill saved!");
+
+      if (typeof response.data.invoiceNo === "number") {
+        updateCustomerInfo("invoiceNo", response.data.invoiceNo);
+      }
+
+      window.location.reload();
     } catch (error: any) {
-      console.error("Error submitting bill:", error);
-      alert("Error saving bill");
+      if (axios.isAxiosError(error)) {
+        alert(
+          "Error saving bill: " +
+            (error.response?.data?.message || error.message)
+        );
+      } else {
+        alert("Error saving bill: " + error.message);
+      }
     }
   };
 
@@ -60,7 +109,6 @@ export default function AluminumBilling() {
   return (
     <Box p="md">
       <Stack gap="md">
-        {/* BILL CONTENT STARTS HERE */}
         <Box
           id="bill-content"
           bg="white"
@@ -143,11 +191,18 @@ export default function AluminumBilling() {
           {/* Customer Info */}
           <Group justify="space-between">
             <TextInput
-              type="text"
-              value={invoiceNumber}
+              type="number"
+              label="Invoice No"
+              name="invoiceNo"
+              value={formData.invoiceNo || ""}
+              onChange={handleCustomerChange}
+              // onKeyDown={(e) => {
+              //   if (e.key === "Enter") {
+              //     fetchInvoice();
+              //   }
+              // }}
               disabled
               w={200}
-              mt={20}
             />
             <TextInput
               label="Customer Name"
@@ -158,11 +213,11 @@ export default function AluminumBilling() {
             />
             <TextInput
               type="date"
+              label="Date"
               name="date"
               value={formData.date}
               onChange={handleCustomerChange}
               w={260}
-              mt={20}
             />
             <TextInput
               label="Company Name"

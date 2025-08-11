@@ -45,7 +45,7 @@ interface BillingContextType {
 }
 
 const defaultFormData: BillFormData = {
-  invoiceNo: 0,
+  invoiceNo: 1,
   customerName: "",
   date: new Date().toISOString().split("T")[0],
 
