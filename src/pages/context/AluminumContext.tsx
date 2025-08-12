@@ -162,7 +162,8 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
 
     const discountedTotal = total - discountedAmount;
 
-    const grandTotal = total - formData.receivedAmount;
+    const grandTotal =
+      total - formData.discountedAmount - formData.receivedAmount;
 
     return { total, discountedAmount, discountedTotal, grandTotal };
   };
