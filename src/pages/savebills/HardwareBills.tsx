@@ -62,7 +62,7 @@ export default function HardwareBills() {
     const fetchInvoices = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/hardware/allInvoices"
+          "https://aluminum-pos.onrender.com/hardware/allInvoices"
         );
         setInvoices(res.data);
       } catch (err) {
@@ -80,7 +80,7 @@ export default function HardwareBills() {
 
     try {
       const res = await axios.get(
-        `http://localhost:3000/hardware/find-invoice/${searchInvoiceNo}`
+        `https://aluminum-pos.onrender.com/find-invoice/${searchInvoiceNo}`
       );
       setInvoices([res.data]); // Wrap single invoice in array
     } catch (err: any) {

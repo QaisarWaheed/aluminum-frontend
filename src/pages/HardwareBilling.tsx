@@ -40,7 +40,7 @@ export default function HardwareBilling() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/hardware/next-invoice-id")
+    fetch("https://aluminum-pos.onrender.com/hardware/next-invoice-id")
       .then((res) => res.json())
       .then((data) => (formData.invoiceNo = data.nextId));
   }, []);
@@ -49,7 +49,7 @@ export default function HardwareBilling() {
     const fetchLatestInvoiceNo = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/hardware/latest-invoice-no"
+          "https://aluminum-pos.onrender.com/hardware/latest-invoice-no"
         );
         updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1); // next available number
       } catch (error) {
@@ -63,7 +63,7 @@ export default function HardwareBilling() {
   const submitBill = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/hardware/add-hardware",
+        "https://aluminum-pos.onrender.com/hardware/add-hardware",
         formData
       );
 

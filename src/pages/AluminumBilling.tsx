@@ -27,7 +27,7 @@ export default function AluminumBilling() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/aluminum/next-invoice-id")
+    fetch("https://aluminum-pos.onrender.com/aluminum/next-invoice-id")
       .then((res) => res.json())
       .then((data) => (formData.invoiceNo = data.nextId));
   }, []);
@@ -36,7 +36,7 @@ export default function AluminumBilling() {
     const fetchLatestInvoiceNo = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/aluminum/latest-invoice-no"
+          "https://aluminum-pos.onrender.com/aluminum/latest-invoice-no"
         );
         updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1); // next available number
       } catch (error) {
@@ -50,7 +50,7 @@ export default function AluminumBilling() {
   const submitBill = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/aluminum/add-aluminum-bill",
+        "https://aluminum-pos.onrender.com/aluminum/add-aluminum-bill",
         formData
       );
 

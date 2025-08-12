@@ -66,7 +66,7 @@ export default function AluminumBills() {
     const fetchInvoices = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/aluminum/allInvoices"
+          "https://aluminum-pos.onrender.com/aluminum/allInvoices"
         );
         setInvoices(res.data);
       } catch (err) {
@@ -84,7 +84,7 @@ export default function AluminumBills() {
     setError(null);
     try {
       const res = await axios.get(
-        `http://localhost:3000/aluminum/find-invoice/${searchInvoiceNo}`
+        `https://aluminum-pos.onrender.com/aluminum/find-invoice/${searchInvoiceNo}`
       );
       setInvoices([res.data]);
     } catch (err: any) {
