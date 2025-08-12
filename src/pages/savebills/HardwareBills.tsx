@@ -8,7 +8,6 @@ import {
   Stack,
   Paper,
   ScrollArea,
-  Badge,
   Text,
   TextInput,
 } from "@mantine/core";

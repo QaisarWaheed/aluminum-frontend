@@ -14,15 +14,15 @@ import {
 import axios from "axios";
 import { IconSearch } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import type { ProductItem } from "../context/HardwareContext"; // If aluminum products differ, create new type accordingly
-import { generateInvoicePdf } from "../pdf/test";
+import type { ProductItem } from "../context/AluminumContext"; // If aluminum products differ, create new type accordingly
+import { generateAluminumInvoicePdf } from "../pdf/test2";
 
 export interface AluminumInvoice {
   _id: string;
   invoiceNo: number;
   date: string;
   customerName: string;
-  products: ProductItem[]; // Change if aluminum products differ
+  products: ProductItem[];
   totalAmount: number;
   previousAmount: number;
   receivedAmount: number;
@@ -31,12 +31,16 @@ export interface AluminumInvoice {
 }
 
 function transformAluminumInvoiceForPdf(inv: AluminumInvoice) {
-  // Map aluminum invoice products for PDF generation (similar structure assumed)
   const productRows = inv.products.map((prod) => ({
+    id: prod.id,
     quantity: prod.quantity,
-    productName: prod.productName,
     rate: prod.rate,
     amount: prod.amount,
+    size: prod.size,
+    section: prod.section,
+    gaje: prod.gaje,
+    color: prod.color,
+    discount: prod.discount,
   }));
 
   return {
@@ -122,7 +126,7 @@ export default function AluminumBills() {
           variant="subtle"
           c="dark"
           size="xs"
-          onClick={() => navigate("/aluminum-bills")}
+          onClick={() => navigate("/hardware-bills")}
         >
           A-Bill Save
         </Button>
@@ -143,15 +147,15 @@ export default function AluminumBills() {
         </Button>
       </Group>
 
-      <ScrollArea style={{ maxHeight: "70vh" }}>
+      <ScrollArea>
         {error && (
-          <Text ta="center" color="red" mb="md">
+          <Text ta="center" c="red" mb="md">
             {error}
           </Text>
         )}
 
         {invoices.length === 0 && !error && (
-          <Text ta="center" color="red">
+          <Text ta="center" c="red">
             No invoices found.
           </Text>
         )}
@@ -174,7 +178,9 @@ export default function AluminumBills() {
                 size="xs"
                 variant="light"
                 onClick={() =>
-                  generateInvoicePdf(transformAluminumInvoiceForPdf(inv))
+                  generateAluminumInvoicePdf(
+                    transformAluminumInvoiceForPdf(inv)
+                  )
                 }
               >
                 Download PDF
@@ -185,9 +191,10 @@ export default function AluminumBills() {
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th style={{ textAlign: "center" }}>Quantity</Table.Th>
-                  <Table.Th style={{ textAlign: "center" }}>
-                    Product Name
-                  </Table.Th>
+                  <Table.Th style={{ textAlign: "center" }}>Section</Table.Th>
+                  <Table.Th style={{ textAlign: "center" }}>size</Table.Th>
+                  <Table.Th style={{ textAlign: "center" }}>Discount</Table.Th>
+
                   <Table.Th style={{ textAlign: "center" }}>Rate</Table.Th>
                   <Table.Th style={{ textAlign: "center" }}>Amount</Table.Th>
                 </Table.Tr>
@@ -200,7 +207,15 @@ export default function AluminumBills() {
                       {prod.quantity}
                     </Table.Td>
                     <Table.Td style={{ textAlign: "center" }}>
-                      {prod.productName}
+                      {prod.section}
+                    </Table.Td>
+
+                    <Table.Td style={{ textAlign: "center" }}>
+                      {prod.size}
+                    </Table.Td>
+
+                    <Table.Td style={{ textAlign: "center" }}>
+                      {prod.discount}
                     </Table.Td>
                     <Table.Td style={{ textAlign: "center" }}>
                       {prod.rate}

@@ -13,8 +13,8 @@ import axios from "axios";
 import { useBilling } from "./context/AluminumContext";
 import "../App.css";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
-import { toJpeg } from "html-to-image";
+import { useEffect } from "react";
+import "../App.css";
 export default function AluminumBilling() {
   const {
     formData,
@@ -25,23 +25,6 @@ export default function AluminumBilling() {
     calculateTotal,
   } = useBilling();
   const navigate = useNavigate();
-  const [invoiceNo, setInvoiceNo] = useState();
-  const billRef = useRef<HTMLDivElement>(null);
-  const saveAsImage = async () => {
-    let dataUrl;
-    try {
-      if (billRef.current) {
-        dataUrl = await toJpeg(billRef.current, { quality: 0.95 });
-        const link = document.createElement("a");
-        link.download = "bill.jpg";
-        link.href = dataUrl;
-        link.click();
-        window.print();
-      }
-    } catch (error) {
-      console.error("Error saving bill as image", error);
-    }
-  };
 
   useEffect(() => {
     fetch("http://localhost:3000/aluminum/next-invoice-id")
@@ -174,14 +157,14 @@ export default function AluminumBilling() {
                   alt="Company Logo"
                   style={{
                     width: 150,
-                    height: 60,
+                    height: 100,
                     objectFit: "cover",
                     borderRadius: 8,
                   }}
                 />
               </Stack>
 
-              <Stack gap={2} align="center">
+              <Stack gap={2} align="center" mt={20}>
                 <Title order={4} style={{ marginBottom: -4 }}>
                   Address
                 </Title>

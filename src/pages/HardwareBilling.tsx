@@ -12,6 +12,7 @@ import { useHardwareBilling } from "./context/HardwareContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import "../App.css";
 
 export default function HardwareBilling() {
   const navigate = useNavigate();
@@ -90,7 +91,7 @@ export default function HardwareBilling() {
       acc +
       item.quantity * item.rate +
       formData.previousAmount +
-      formData.hardwareAmount,
+      formData.aluminumTotal,
     0
   );
   const grandTotal = totalAmount - Number(formData.receivedAmount);
@@ -113,46 +114,13 @@ export default function HardwareBilling() {
             mb="lg"
             style={{ borderBottom: "1px solid #ddd", paddingBottom: "1rem" }}
           >
-            <Group justify="space-between" align="flex-start" wrap="wrap">
-              {/* Logo */}
-              <Stack gap={4} align="flex-start" miw={150}>
-                <img
-                  src="/Logo.png"
-                  alt="Company Logo"
-                  style={{
-                    width: 140,
-                    height: 60,
-                    objectFit: "contain",
-                    borderRadius: 8,
-                  }}
-                />
-                <Text size="xs" c="dimmed" style={{ fontStyle: "italic" }}>
-                  Aluminum Hardware Store
-                </Text>
-              </Stack>
-
-              {/* Address */}
-              <Stack
-                gap={2}
-                align="center"
-                style={{ flexGrow: 1, minWidth: 200 }}
-              >
-                <Title order={4} style={{ marginBottom: -4 }}>
-                  Address
-                </Title>
-                <Text size="xs" c="gray">
-                  Badozai Street, Outside Bohar Gate, Multan, Pakistan
-                </Text>
-                <Text size="xs" c="gray">
-                  Monday–Saturday | 10 AM – 10 PM
-                </Text>
-              </Stack>
-
-              {/* Contact */}
-              <Stack gap={2} align="flex-end" miw={150}>
+            <Group justify="space-between" align="flex-start" wrap="nowrap">
+              <Stack gap={2} align="flex-end">
                 <Title
-                  order={2}
-                  style={{ fontSize: "18px", margin: 0, letterSpacing: 2 }}
+                  order={1}
+                  style={{ fontSize: "20px", letterSpacing: 2 }}
+                  mr={25}
+                  mb={3}
                 >
                   Wahid Sons
                 </Title>
@@ -182,6 +150,31 @@ export default function HardwareBilling() {
                     </Text>
                   </Group>
                 </Stack>
+              </Stack>
+
+              <Stack>
+                <img
+                  src="/Logo.jpg"
+                  alt="Company Logo"
+                  style={{
+                    width: 150,
+                    height: 100,
+                    objectFit: "cover",
+                    borderRadius: 8,
+                  }}
+                />
+              </Stack>
+
+              <Stack gap={2} align="center" mt={20}>
+                <Title order={4} style={{ marginBottom: -4 }}>
+                  Address
+                </Title>
+                <Text size="xs" c="gray">
+                  Badozai Street, Outside Bohar Gate, Multan, Pakistan
+                </Text>
+                <Text size="xs" c="gray">
+                  Saturday–Thursday | 09 AM – 08 PM
+                </Text>
               </Stack>
             </Group>
           </Box>
@@ -316,10 +309,10 @@ export default function HardwareBilling() {
                   />
                   <TextInput
                     size="xs"
-                    label="Hardware Amount"
+                    label="Aluminum Amount"
                     type="number"
-                    name="hardwareAmount"
-                    value={formData.hardwareAmount}
+                    name="aluminumAmount"
+                    value={formData.aluminumTotal}
                     onChange={handleCustomerChange}
                     mt="xs"
                   />
@@ -346,8 +339,8 @@ export default function HardwareBilling() {
           </Box>
         </Box>
 
-        <Stack mt="xl" maw={900} mx="auto" justify="space-between">
-          <Group>
+        <Stack mt="xl" maw={900} mx={500}>
+          <Group maw={900} justify="space-between">
             <Button size="xs" onClick={() => addItem()}>
               Add Item
             </Button>
@@ -358,12 +351,14 @@ export default function HardwareBilling() {
               Print Bill
             </Button>
           </Group>
-          <Group mt="xl">
-            <Button onClick={() => navigate("/hardware")}>H Billing</Button>
-            <Button onClick={() => navigate("/aluminum-bills")} p={10}>
+          <Group mt="xl" justify="space-between">
+            <Button p={11} onClick={() => navigate("/hardware")}>
+              H Billing
+            </Button>
+            <Button onClick={() => navigate("/aluminum-bills")} p={4}>
               A-Bill Save
             </Button>
-            <Button onClick={() => navigate("/hardware-bills")} p={10}>
+            <Button onClick={() => navigate("/hardware-bills")} p={3}>
               H-Bill Save
             </Button>
           </Group>

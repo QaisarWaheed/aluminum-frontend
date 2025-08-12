@@ -1,20 +1,12 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import type { ProductItem } from "../context/AluminumContext";
 
 export interface AluminumInvoiceData {
   invoiceNo: number;
   date: string;
   customerName: string;
-  products: {
-    quantity: number;
-    section: number;
-    size: number;
-    gaje: string;
-    color: string;
-    rate: number;
-    discount: number;
-    amount: number;
-  }[];
+  products: ProductItem[];
   totalAmount: number;
   previousAmount: number;
   receivedAmount: number;

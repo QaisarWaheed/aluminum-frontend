@@ -22,6 +22,7 @@ export interface BillFormData {
   products: ProductItem[];
   previousAmount: number;
   aluminumTotal: number;
+
   totalAmount: number;
   receivedAmount: number;
   grandTotal: number;
