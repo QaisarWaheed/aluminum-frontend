@@ -359,7 +359,7 @@ export default function HardwareBilling() {
               A-Bill Save
             </Button>
             <Button onClick={() => navigate("/hardware-bills")} p={3}>
-              H-Bill Save
+              A-Bill save
             </Button>
           </Group>
         </Stack>
