@@ -20,8 +20,11 @@ export interface BillFormData {
   companyName: string;
   city: string;
   products: ProductItem[];
-  totalAmount: number;
   previousAmount: number;
+  aluminumTotal: number;
+  totalAmount: number;
+  receivedAmount: number;
+  grandTotal: number;
 }
 
 interface BillingContextType {
@@ -53,8 +56,11 @@ const defaultFormData: BillFormData = {
       amount: 0,
     },
   ],
-  totalAmount: 0,
   previousAmount: 0,
+  aluminumTotal: 0,
+  totalAmount: 0,
+  receivedAmount: 0,
+  grandTotal: 0,
 };
 
 const HardwareBillingContext = createContext<BillingContextType | undefined>(
@@ -120,11 +126,17 @@ export const HardwareBillingProvider = ({
 
   const calculateTotal = () => {
     const total = formData.products.reduce(
-      (acc, item) => acc + item.quantity * item.rate,
+      (acc, item) =>
+        acc +
+        item.quantity * item.rate +
+        formData.previousAmount +
+        formData.aluminumTotal,
       0
     );
 
-    return { total };
+    const grandTotal = total - formData.receivedAmount;
+
+    return { total, grandTotal };
   };
 
   return (

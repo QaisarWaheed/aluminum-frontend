@@ -92,8 +92,15 @@ export default function AluminumBilling() {
   };
 
   const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    updateCustomerInfo(name as any, value);
+    const { name, value, type } = e.target;
+
+    let newValue: string | number = value;
+
+    if (type === "number") {
+      newValue = value === "" ? "" : Number(value);
+    }
+
+    updateCustomerInfo(name as any, newValue);
   };
 
   const handleItemChange = (
@@ -104,7 +111,7 @@ export default function AluminumBilling() {
     updateItem(id, field as any, value);
   };
 
-  const { total, discountedAmount } = calculateTotal();
+  const { total, discountedAmount, grandTotal } = calculateTotal();
 
   return (
     <Box p="md">
@@ -196,11 +203,6 @@ export default function AluminumBilling() {
               name="invoiceNo"
               value={formData.invoiceNo || ""}
               onChange={handleCustomerChange}
-              // onKeyDown={(e) => {
-              //   if (e.key === "Enter") {
-              //     fetchInvoice();
-              //   }
-              // }}
               disabled
               w={200}
             />
@@ -353,6 +355,7 @@ export default function AluminumBilling() {
                 backgroundColor: "#f9f9f9",
                 borderRadius: 8,
                 border: "1px solid #eee",
+                gap: "20px",
               }}
             >
               <div style={{ display: "flex", gap: "20px" }}>
@@ -366,6 +369,25 @@ export default function AluminumBilling() {
                   <strong>Discounted Amount:</strong> Rs.{" "}
                   {discountedAmount.toFixed(2)}
                 </div>
+
+                <TextInput
+                  label="Previous Amount"
+                  type="number"
+                  value={formData.previousAmount || 0}
+                  onChange={handleCustomerChange}
+                  name="previousAmount"
+                  bg={"#f9f9f9"}
+                  placeholder="0.00"
+                />
+                <TextInput
+                  label="Hardware Total"
+                  type="number"
+                  name="hardwareAmount"
+                  value={formData.hardwareAmount}
+                  onChange={handleCustomerChange}
+                  bg={"#f9f9f9"}
+                  placeholder="0.00"
+                />
                 <div
                   style={{
                     backgroundColor: "#f9f9f9",
@@ -375,12 +397,31 @@ export default function AluminumBilling() {
                 >
                   <strong>Total Amount:</strong> Rs. {total.toFixed(2)}
                 </div>
+                <TextInput
+                  label="Received Amount"
+                  placeholder="0.00"
+                  type="number"
+                  name="receivedAmount"
+                  value={formData.receivedAmount}
+                  onChange={handleCustomerChange}
+                  bg={"#f9f9f9"}
+                />
+                <div
+                  style={{
+                    backgroundColor: "#f9f9f9",
+                    border: "1px solid #eee",
+                    padding: "5px",
+                  }}
+                >
+                  <strong>Grand Amount:</strong> Rs. {grandTotal.toFixed(2)}
+                </div>
               </div>
             </Box>
           </Group>
         </Box>
 
         {/* Action Buttons */}
+
         <Group justify="space-between" mt="xl">
           <Button onClick={addItem}>Add Item</Button>
           <Button onClick={submitBill}>Save Bill</Button>

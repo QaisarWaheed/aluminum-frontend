@@ -19,8 +19,15 @@ export default function HardwareBilling() {
     useHardwareBilling();
 
   const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    updateCustomerInfo(name as any, value);
+    const { name, value, type } = e.target;
+
+    let newValue: string | number | null = value;
+
+    if (type === "number") {
+      newValue = value === "" ? "" : Number(value);
+    }
+
+    updateCustomerInfo(name as any, newValue);
   };
 
   const handleItemChange = (
@@ -79,10 +86,14 @@ export default function HardwareBilling() {
     }
   };
   const totalAmount = formData.products.reduce(
-    (acc, item) => acc + item.quantity * item.rate,
+    (acc, item) =>
+      acc +
+      item.quantity * item.rate +
+      formData.previousAmount +
+      formData.hardwareAmount,
     0
   );
-  const grandTotal = totalAmount + Number(formData.previousAmount);
+  const grandTotal = totalAmount - Number(formData.receivedAmount);
 
   return (
     <Box p="md" style={{ fontSize: "12px" }}>
@@ -181,7 +192,8 @@ export default function HardwareBilling() {
               type="number"
               label="Invoice No"
               name="invoiceNo"
-              value={formData.invoiceNo || ""}
+              disabled
+              value={formData.invoiceNo || 1}
               onChange={handleCustomerChange}
               w={{ base: "100%", sm: 250 }}
             />
@@ -282,7 +294,7 @@ export default function HardwareBilling() {
             </Table>
 
             {/* TOTALS */}
-            <Group justify="end" mt="md" wrap="wrap">
+            <Group mt="md">
               <Box
                 p="md"
                 style={{
@@ -290,49 +302,72 @@ export default function HardwareBilling() {
                   backgroundColor: "#f9f9f9",
                   borderRadius: 8,
                   border: "1px solid #eee",
-                  minWidth: 250,
                 }}
               >
-                <div>
-                  <strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}
-                </div>
-                <TextInput
-                  size="xs"
-                  label="Previous Amount"
-                  type="number"
-                  name="previousAmount"
-                  value={formData.previousAmount}
-                  onChange={handleCustomerChange}
-                  mt="xs"
-                />
-                <div style={{ marginTop: 8 }}>
-                  <strong>Grand Total:</strong> Rs. {grandTotal}
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <TextInput
+                    size="xs"
+                    label="Previous Amount"
+                    type="number"
+                    name="previousAmount"
+                    value={formData.previousAmount}
+                    onChange={handleCustomerChange}
+                    mt="xs"
+                  />
+                  <TextInput
+                    size="xs"
+                    label="Hardware Amount"
+                    type="number"
+                    name="hardwareAmount"
+                    value={formData.hardwareAmount}
+                    onChange={handleCustomerChange}
+                    mt="xs"
+                  />
+
+                  <div style={{ marginTop: "28px" }}>
+                    <strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}
+                  </div>
+
+                  <TextInput
+                    size="xs"
+                    label="Received Amount"
+                    type="number"
+                    name="receivedAmount"
+                    value={formData.receivedAmount}
+                    onChange={handleCustomerChange}
+                    mt="xs"
+                  />
+                  <div style={{ marginTop: "28px" }}>
+                    <strong>Grand Total:</strong> Rs. {grandTotal}
+                  </div>
                 </div>
               </Box>
             </Group>
           </Box>
         </Box>
 
-        <Group justify="space-between" mt="xl" maw={900} mx="auto" wrap="wrap">
-          <Button size="xs" onClick={() => addItem()}>
-            Add Item
-          </Button>
-          <Button size="xs" onClick={submitBill}>
-            Save Bill
-          </Button>
-          <Button size="xs" onClick={() => window.print()}>
-            Print Bill
-          </Button>
-        </Group>
-        <Group justify="space-between" mt="xl">
-          <Button onClick={() => navigate("/hardware")}>H Billing</Button>
-          <Button onClick={() => navigate("/aluminum-bills")} p={10}>
-            A-Bill Save
-          </Button>
-          <Button onClick={() => navigate("/hardware-bills")} p={10}>
-            H-Bill Save
-          </Button>
-        </Group>
+        <Stack mt="xl" maw={900} mx="auto" justify="space-between">
+          <Group>
+            <Button size="xs" onClick={() => addItem()}>
+              Add Item
+            </Button>
+            <Button size="xs" onClick={submitBill}>
+              Save Bill
+            </Button>
+            <Button size="xs" onClick={() => window.print()}>
+              Print Bill
+            </Button>
+          </Group>
+          <Group mt="xl">
+            <Button onClick={() => navigate("/hardware")}>H Billing</Button>
+            <Button onClick={() => navigate("/aluminum-bills")} p={10}>
+              A-Bill Save
+            </Button>
+            <Button onClick={() => navigate("/hardware-bills")} p={10}>
+              H-Bill Save
+            </Button>
+          </Group>
+        </Stack>
       </Stack>
     </Box>
   );

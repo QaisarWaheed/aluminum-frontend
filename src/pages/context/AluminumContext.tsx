@@ -26,6 +26,10 @@ export interface BillFormData {
   products: ProductItem[];
   discountedAmount: number;
   totalAmount: number;
+  previousAmount: number;
+  hardwareAmount: number;
+  receivedAmount: number;
+  grandTotal: number;
 }
 
 interface BillingContextType {
@@ -39,7 +43,7 @@ interface BillingContextType {
   ) => void;
   calculateTotal: () => {
     total: number;
-
+    grandTotal: number;
     discountedAmount: number;
   };
 }
@@ -66,6 +70,10 @@ const defaultFormData: BillFormData = {
   ],
   discountedAmount: 0,
   totalAmount: 0,
+  previousAmount: 0,
+  hardwareAmount: 0,
+  receivedAmount: 0,
+  grandTotal: 0,
 };
 
 const BillingContext = createContext<BillingContextType | undefined>(undefined);
@@ -134,14 +142,19 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
       [field]: value,
     }));
   };
-
+  let discountedAmount = 0;
   const calculateTotal = () => {
     const total = formData.products.reduce(
-      (acc, item) => acc + item.size * item.quantity * item.rate,
+      (acc, item) =>
+        acc +
+        item.size * item.quantity * item.rate +
+        formData.previousAmount +
+        formData.hardwareAmount -
+        discountedAmount,
       0
     );
 
-    const discountedAmount = formData.products.reduce((acc, item) => {
+    discountedAmount = formData.products.reduce((acc, item) => {
       const baseAmount = item.size * item.quantity * item.rate;
       return acc + (baseAmount * (item.discount || 0)) / 100;
     }, 0);
@@ -149,7 +162,9 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
 
     const discountedTotal = total - discountedAmount;
 
-    return { total, discountedAmount, discountedTotal };
+    const grandTotal = total - formData.receivedAmount;
+
+    return { total, discountedAmount, discountedTotal, grandTotal };
   };
   return (
     <BillingContext.Provider
