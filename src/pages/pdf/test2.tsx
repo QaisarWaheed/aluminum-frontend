@@ -57,7 +57,6 @@ export function generateAluminumInvoicePdf(
     theme: "grid",
   });
 
-  // Add totals below the table
   const finalY = (doc as any).lastAutoTable.finalY || 45;
 
   doc.setFontSize(12);
