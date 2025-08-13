@@ -27,6 +27,20 @@ export default function AluminumBilling() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        event.preventDefault();
+        addItem();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [addItem]);
+
+  useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/aluminum/next-invoice-id`)
       .then((res) => res.json())
       .then((data) => (formData.invoiceNo = data.nextId));
