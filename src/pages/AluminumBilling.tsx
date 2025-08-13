@@ -293,7 +293,15 @@ export default function AluminumBilling() {
                   </td>
                   <td>
                     <Select
-                      data={["CH", "BLM", "WT", "SL"]}
+                      data={[
+                        "CH",
+                        "BLM",
+                        "WT",
+                        "SL",
+                        "WOOD",
+                        "SAHARA",
+                        "MALTI",
+                      ]}
                       value={item.color}
                       onChange={(value) =>
                         handleItemChange(item.id, "color", value || "")
