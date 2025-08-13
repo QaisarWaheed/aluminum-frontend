@@ -31,7 +31,6 @@ export interface Invoice {
 }
 
 function transformInvoiceForPdf(inv: Invoice) {
-  // Prepare rows of product details for PDF table body
   const productRows = inv.products.map((prod) => ({
     quantity: prod.quantity,
     productName: prod.productName,
@@ -62,7 +61,7 @@ export default function HardwareBills() {
     const fetchInvoices = async () => {
       try {
         const res = await axios.get(
-          "https://aluminum-pos.onrender.com/hardware/allInvoices"
+          `${import.meta.env.VITE_API_URL}/hardware/allInvoices`
         );
         setInvoices(res.data);
       } catch (err) {
@@ -80,12 +79,12 @@ export default function HardwareBills() {
 
     try {
       const res = await axios.get(
-        `https://aluminum-pos.onrender.com/find-invoice/${searchInvoiceNo}`
+        `${import.meta.env.VITE_API_URL}/find-invoice/${searchInvoiceNo}`
       );
-      setInvoices([res.data]); // Wrap single invoice in array
+      setInvoices([res.data]);
     } catch (err: any) {
       setError(err.response?.data?.message || "Invoice not found");
-      setInvoices([]); // Clear invoices on error
+      setInvoices([]);
     } finally {
       setLoading(false);
     }

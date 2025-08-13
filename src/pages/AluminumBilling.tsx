@@ -27,7 +27,7 @@ export default function AluminumBilling() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("https://aluminum-pos.onrender.com/aluminum/next-invoice-id")
+    fetch(`${import.meta.env.VITE_API_URL}/aluminum/next-invoice-id`)
       .then((res) => res.json())
       .then((data) => (formData.invoiceNo = data.nextId));
   }, []);
@@ -36,9 +36,9 @@ export default function AluminumBilling() {
     const fetchLatestInvoiceNo = async () => {
       try {
         const res = await axios.get(
-          "https://aluminum-pos.onrender.com/aluminum/latest-invoice-no"
+          `${import.meta.env.VITE_API_URL}/aluminum/latest-invoice-no`
         );
-        updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1); // next available number
+        updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1);
       } catch (error) {
         console.error("Error fetching latest invoice number:", error);
       }
@@ -50,7 +50,7 @@ export default function AluminumBilling() {
   const submitBill = async () => {
     try {
       const response = await axios.post(
-        "https://aluminum-pos.onrender.com/aluminum/add-aluminum-bill",
+        `${import.meta.env.VITE_API_URL}/aluminum/add-aluminum-bill`,
         formData
       );
 
