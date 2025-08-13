@@ -370,7 +370,7 @@ export default function AluminumBilling() {
                 <TextInput
                   label="Previous Amount"
                   type="number"
-                  value={formData.previousAmount || 0}
+                  value={formData.previousAmount}
                   onChange={handleCustomerChange}
                   name="previousAmount"
                   bg={"#f9f9f9"}
