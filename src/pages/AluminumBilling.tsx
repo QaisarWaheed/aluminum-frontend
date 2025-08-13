@@ -15,11 +15,7 @@ import "../App.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import "../App.css";
-import { useRef } from "react";
-
 export default function AluminumBilling() {
-  const inputRefs = useRef<(HTMLInputElement | null)[][]>([]);
-
   const {
     formData,
     addItem,
@@ -32,44 +28,16 @@ export default function AluminumBilling() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const active = document.activeElement as HTMLInputElement;
-
-      // Shift key adds new item
       if (event.key === "Shift") {
         event.preventDefault();
         addItem();
-        return;
-      }
-
-      // Arrow key navigation
-      if (!active) return;
-      let rowIndex = -1,
-        colIndex = -1;
-
-      for (let r = 0; r < inputRefs.current.length; r++) {
-        for (let c = 0; c < inputRefs.current[r].length; c++) {
-          if (inputRefs.current[r][c] === active) {
-            rowIndex = r;
-            colIndex = c;
-          }
-        }
-      }
-
-      if (rowIndex === -1 || colIndex === -1) return;
-
-      if (event.key === "ArrowRight") {
-        inputRefs.current[rowIndex][colIndex + 1]?.focus();
-      } else if (event.key === "ArrowLeft") {
-        inputRefs.current[rowIndex][colIndex - 1]?.focus();
-      } else if (event.key === "ArrowDown") {
-        inputRefs.current[rowIndex + 1]?.[colIndex]?.focus();
-      } else if (event.key === "ArrowUp") {
-        inputRefs.current[rowIndex - 1]?.[colIndex]?.focus();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [addItem]);
 
   useEffect(() => {
@@ -283,11 +251,6 @@ export default function AluminumBilling() {
                   <td>
                     <TextInput
                       value={item.section}
-                      ref={(el) => {
-                        if (!inputRefs.current[index]) inputRefs.current[index];
-                        inputRefs.current[index] = [];
-                        inputRefs.current[index][1] = el;
-                      }}
                       onChange={(e) =>
                         handleItemChange(
                           item.id,
@@ -300,11 +263,6 @@ export default function AluminumBilling() {
                   <td>
                     <TextInput
                       value={item.size}
-                      ref={(el) => {
-                        if (!inputRefs.current[index]) inputRefs.current[index];
-                        inputRefs.current[index] = [];
-                        inputRefs.current[index][1] = el;
-                      }}
                       onChange={(e) =>
                         handleItemChange(item.id, "size", e.currentTarget.value)
                       }
@@ -314,11 +272,6 @@ export default function AluminumBilling() {
                     <TextInput
                       type="number"
                       value={item.quantity}
-                      ref={(el) => {
-                        if (!inputRefs.current[index]) inputRefs.current[index];
-                        inputRefs.current[index] = [];
-                        inputRefs.current[index][1] = el;
-                      }}
                       onChange={(e) =>
                         handleItemChange(
                           item.id,
@@ -332,11 +285,6 @@ export default function AluminumBilling() {
                     <Select
                       data={["0.9", "1.1", "1.2", "1.4", "1.6", "2.0"]}
                       value={item.gaje}
-                      ref={(el) => {
-                        if (!inputRefs.current[index]) inputRefs.current[index];
-                        inputRefs.current[index] = [];
-                        inputRefs.current[index][1] = el;
-                      }}
                       onChange={(value) =>
                         handleItemChange(item.id, "gaje", value || "")
                       }
@@ -347,11 +295,6 @@ export default function AluminumBilling() {
                     <Select
                       data={["CH", "BLM", "WT", "SL"]}
                       value={item.color}
-                      ref={(el) => {
-                        if (!inputRefs.current[index]) inputRefs.current[index];
-                        inputRefs.current[index] = [];
-                        inputRefs.current[index][1] = el;
-                      }}
                       onChange={(value) =>
                         handleItemChange(item.id, "color", value || "")
                       }
@@ -363,11 +306,6 @@ export default function AluminumBilling() {
                     <TextInput
                       type="number"
                       value={item.rate}
-                      ref={(el) => {
-                        if (!inputRefs.current[index]) inputRefs.current[index];
-                        inputRefs.current[index] = [];
-                        inputRefs.current[index][1] = el;
-                      }}
                       onChange={(e) =>
                         handleItemChange(
                           item.id,
@@ -381,11 +319,6 @@ export default function AluminumBilling() {
                     <TextInput
                       type="number"
                       value={item.discount}
-                      ref={(el) => {
-                        if (!inputRefs.current[index]) inputRefs.current[index];
-                        inputRefs.current[index] = [];
-                        inputRefs.current[index][1] = el;
-                      }}
                       onChange={(e) =>
                         handleItemChange(
                           item.id,
