@@ -160,7 +160,8 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
       total +
       (Number(formData.previousAmount) || 0) +
       (Number(formData.hardwareAmount) || 0) -
-      discountedAmount;
+      discountedAmount -
+      Number(formData.receivedAmount);
 
     const grandTotal = totalWithPrevious;
 
