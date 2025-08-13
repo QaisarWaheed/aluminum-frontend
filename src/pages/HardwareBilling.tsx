@@ -316,7 +316,7 @@ export default function HardwareBilling() {
                     size="xs"
                     label="Aluminum Amount"
                     type="number"
-                    name="hardwareAmount"
+                    name="aluminumAmount"
                     value={formData.aluminumTotal}
                     onChange={handleCustomerChange}
                     mt="xs"
