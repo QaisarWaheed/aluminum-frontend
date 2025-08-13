@@ -23,7 +23,6 @@ export function generateInvoicePdf(
 ) {
   const doc = new jsPDF();
 
-  // Title and header info
   doc.setFontSize(18);
   doc.text(`Invoice #${data.invoiceNo}`, 14, 20);
 
@@ -31,10 +30,8 @@ export function generateInvoicePdf(
   doc.text(`Date: ${data.date}`, 14, 30);
   doc.text(`Customer: ${data.customerName}`, 14, 38);
 
-  // Prepare table headers
   const headers = ["Quantity", "Product Name", "Rate", "Amount"];
 
-  // Map products to rows
   const rows = data.products.map((product) => [
     product.quantity.toString(),
     product.productName,
@@ -53,7 +50,7 @@ export function generateInvoicePdf(
   });
 
   // Add totals below the table
-  const finalY = (doc as any).lastAutoTable.finalY || 45; // y pos after table
+  const finalY = (doc as any).lastAutoTable.finalY || 45;
 
   doc.setFontSize(12);
   doc.text(`Total Amount: ${data.totalAmount.toFixed(2)}`, 14, finalY + 15);

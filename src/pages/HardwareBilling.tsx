@@ -18,6 +18,19 @@ export default function HardwareBilling() {
   const navigate = useNavigate();
   const { formData, addItem, removeItem, updateItem, updateCustomerInfo } =
     useHardwareBilling();
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        event.preventDefault();
+        addItem();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [addItem]);
 
   const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -40,7 +53,7 @@ export default function HardwareBilling() {
   };
 
   useEffect(() => {
-    fetch("https://aluminum-pos.onrender.com/hardware/next-invoice-id")
+    fetch(`${import.meta.env.VITE_API_URL}/hardware/next-invoice-id`)
       .then((res) => res.json())
       .then((data) => (formData.invoiceNo = data.nextId));
   }, []);
@@ -49,7 +62,7 @@ export default function HardwareBilling() {
     const fetchLatestInvoiceNo = async () => {
       try {
         const res = await axios.get(
-          "https://aluminum-pos.onrender.com/hardware/latest-invoice-no"
+          `${import.meta.env.VITE_API_URL}/hardware/latest-invoice-no`
         );
         updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1); // next available number
       } catch (error) {
@@ -63,7 +76,7 @@ export default function HardwareBilling() {
   const submitBill = async () => {
     try {
       const response = await axios.post(
-        "https://aluminum-pos.onrender.com/hardware/add-hardware",
+        `${import.meta.env.VITE_API_URL}/hardware/add-hardware`,
         formData
       );
 
@@ -86,14 +99,15 @@ export default function HardwareBilling() {
       }
     }
   };
-  const totalAmount = formData.products.reduce(
-    (acc, item) =>
-      acc +
-      item.quantity * item.rate +
-      formData.previousAmount +
-      formData.aluminumTotal,
-    0
-  );
+  const totalAmount = formData.products.reduce((acc, item) => {
+    const quantity = Number(item.quantity) || 0;
+    const rate = Number(item.rate) || 0;
+    const prevAmount = Number(formData.previousAmount) || 0;
+    const aluminumTotal = Number(formData.aluminumTotal) || 0;
+
+    return acc + quantity * rate + prevAmount + aluminumTotal;
+  }, 0);
+
   const grandTotal = totalAmount - Number(formData.receivedAmount);
 
   return (
@@ -271,7 +285,11 @@ export default function HardwareBilling() {
                         }
                       />
                     </td>
-                    <td>{(item.quantity * item.rate).toFixed(2)}</td>
+                    <td>
+                      {(
+                        (Number(item.quantity) || 0) * (Number(item.rate) || 0)
+                      ).toFixed(2)}
+                    </td>
                     <td>
                       <Button
                         color="red"
@@ -311,7 +329,7 @@ export default function HardwareBilling() {
                     size="xs"
                     label="Aluminum Amount"
                     type="number"
-                    name="aluminumAmount"
+                    name="aluminumTotal"
                     value={formData.aluminumTotal}
                     onChange={handleCustomerChange}
                     mt="xs"
@@ -352,8 +370,8 @@ export default function HardwareBilling() {
             </Button>
           </Group>
           <Group mt="xl" justify="space-between">
-            <Button p={11} onClick={() => navigate("/hardware")}>
-              H Billing
+            <Button p={11} onClick={() => navigate("/")}>
+              A-Bills
             </Button>
             <Button onClick={() => navigate("/aluminum-bills")} p={4}>
               A-Bill Save

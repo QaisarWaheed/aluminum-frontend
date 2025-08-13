@@ -31,23 +31,22 @@ export interface Invoice {
 }
 
 function transformInvoiceForPdf(inv: Invoice) {
-  // Prepare rows of product details for PDF table body
   const productRows = inv.products.map((prod) => ({
-    quantity: prod.quantity,
+    quantity: Number(prod.quantity) || 0,
     productName: prod.productName,
-    rate: prod.rate,
-    amount: prod.amount,
+    rate: Number(prod.rate) || 0,
+    amount: Number(prod.amount) || 0,
   }));
 
   return {
-    invoiceNo: inv.invoiceNo,
+    invoiceNo: Number(inv.invoiceNo) || 0,
     date: inv.date,
     customerName: inv.customerName,
     products: productRows,
-    totalAmount: inv.totalAmount,
-    previousAmount: inv.previousAmount,
-    receivedAmount: inv.receivedAmount,
-    grandTotal: inv.grandTotal,
+    totalAmount: Number(inv.totalAmount) || 0,
+    previousAmount: Number(inv.previousAmount) || 0,
+    receivedAmount: Number(inv.receivedAmount) || 0,
+    grandTotal: Number(inv.grandTotal) || 0,
   };
 }
 
@@ -62,7 +61,7 @@ export default function HardwareBills() {
     const fetchInvoices = async () => {
       try {
         const res = await axios.get(
-          "https://aluminum-pos.onrender.com/hardware/allInvoices"
+          `${import.meta.env.VITE_API_URL}/hardware/allInvoices`
         );
         setInvoices(res.data);
       } catch (err) {
@@ -80,12 +79,12 @@ export default function HardwareBills() {
 
     try {
       const res = await axios.get(
-        `https://aluminum-pos.onrender.com/find-invoice/${searchInvoiceNo}`
+        `${import.meta.env.VITE_API_URL}/find-invoice/${searchInvoiceNo}`
       );
-      setInvoices([res.data]); // Wrap single invoice in array
+      setInvoices([res.data]);
     } catch (err: any) {
       setError(err.response?.data?.message || "Invoice not found");
-      setInvoices([]); // Clear invoices on error
+      setInvoices([]);
     } finally {
       setLoading(false);
     }

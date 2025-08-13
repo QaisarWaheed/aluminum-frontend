@@ -27,7 +27,21 @@ export default function AluminumBilling() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("https://aluminum-pos.onrender.com/aluminum/next-invoice-id")
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        event.preventDefault();
+        addItem();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [addItem]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/aluminum/next-invoice-id`)
       .then((res) => res.json())
       .then((data) => (formData.invoiceNo = data.nextId));
   }, []);
@@ -36,9 +50,9 @@ export default function AluminumBilling() {
     const fetchLatestInvoiceNo = async () => {
       try {
         const res = await axios.get(
-          "https://aluminum-pos.onrender.com/aluminum/latest-invoice-no"
+          `${import.meta.env.VITE_API_URL}/aluminum/latest-invoice-no`
         );
-        updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1); // next available number
+        updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1);
       } catch (error) {
         console.error("Error fetching latest invoice number:", error);
       }
@@ -50,7 +64,7 @@ export default function AluminumBilling() {
   const submitBill = async () => {
     try {
       const response = await axios.post(
-        "https://aluminum-pos.onrender.com/aluminum/add-aluminum-bill",
+        `${import.meta.env.VITE_API_URL}/aluminum/add-aluminum-bill`,
         formData
       );
 
@@ -314,7 +328,7 @@ export default function AluminumBilling() {
                       }
                     />
                   </td>
-                  <td>{item.amount.toFixed(2)}</td>
+                  <td>{Number(item.amount)}</td>
                   <td>
                     <Button
                       color="red"
@@ -356,7 +370,7 @@ export default function AluminumBilling() {
                 <TextInput
                   label="Previous Amount"
                   type="number"
-                  value={formData.previousAmount || 0}
+                  value={formData.previousAmount}
                   onChange={handleCustomerChange}
                   name="previousAmount"
                   bg={"#f9f9f9"}
