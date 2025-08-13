@@ -86,14 +86,15 @@ export default function HardwareBilling() {
       }
     }
   };
-  const totalAmount = formData.products.reduce(
-    (acc, item) =>
-      acc +
-      item.quantity * item.rate +
-      formData.previousAmount +
-      formData.aluminumTotal,
-    0
-  );
+  const totalAmount = formData.products.reduce((acc, item) => {
+    const quantity = Number(item.quantity) || 0;
+    const rate = Number(item.rate) || 0;
+    const prevAmount = Number(formData.previousAmount) || 0;
+    const aluminumTotal = Number(formData.aluminumTotal) || 0;
+
+    return acc + quantity * rate + prevAmount + aluminumTotal;
+  }, 0);
+
   const grandTotal = totalAmount - Number(formData.receivedAmount);
 
   return (
@@ -271,7 +272,11 @@ export default function HardwareBilling() {
                         }
                       />
                     </td>
-                    <td>{(item.quantity * item.rate).toFixed(2)}</td>
+                    <td>
+                      {(
+                        (Number(item.quantity) || 0) * (Number(item.rate) || 0)
+                      ).toFixed(2)}
+                    </td>
                     <td>
                       <Button
                         color="red"

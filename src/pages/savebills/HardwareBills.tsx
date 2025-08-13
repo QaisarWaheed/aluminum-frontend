@@ -32,21 +32,21 @@ export interface Invoice {
 
 function transformInvoiceForPdf(inv: Invoice) {
   const productRows = inv.products.map((prod) => ({
-    quantity: prod.quantity,
+    quantity: Number(prod.quantity) || 0,
     productName: prod.productName,
-    rate: prod.rate,
-    amount: prod.amount,
+    rate: Number(prod.rate) || 0,
+    amount: Number(prod.amount) || 0,
   }));
 
   return {
-    invoiceNo: inv.invoiceNo,
+    invoiceNo: Number(inv.invoiceNo) || 0,
     date: inv.date,
     customerName: inv.customerName,
     products: productRows,
-    totalAmount: inv.totalAmount,
-    previousAmount: inv.previousAmount,
-    receivedAmount: inv.receivedAmount,
-    grandTotal: inv.grandTotal,
+    totalAmount: Number(inv.totalAmount) || 0,
+    previousAmount: Number(inv.previousAmount) || 0,
+    receivedAmount: Number(inv.receivedAmount) || 0,
+    grandTotal: Number(inv.grandTotal) || 0,
   };
 }
 

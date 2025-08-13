@@ -7,25 +7,24 @@ import React, {
 
 export interface ProductItem {
   id: number;
-  quantity: number;
+  quantity: string | number; // can be "" initially
   productName: string;
-  rate: number;
-  amount: number;
+  rate: string | number;
+  amount: string | number;
 }
 
 export interface BillFormData {
-  invoiceNo: number;
+  invoiceNo: string | number;
   customerName: string;
   date: string;
   companyName: string;
   city: string;
   products: ProductItem[];
-  previousAmount: number;
-  aluminumTotal: number;
-
-  totalAmount: number;
-  receivedAmount: number;
-  grandTotal: number;
+  previousAmount: string | number;
+  aluminumTotal: string | number;
+  totalAmount: string | number;
+  receivedAmount: string | number;
+  grandTotal: string | number;
 }
 
 interface BillingContextType {
@@ -39,11 +38,12 @@ interface BillingContextType {
   ) => void;
   calculateTotal: () => {
     total: number;
+    grandTotal: number;
   };
 }
 
 const defaultFormData: BillFormData = {
-  invoiceNo: 0,
+  invoiceNo: "",
   customerName: "",
   date: new Date().toISOString().split("T")[0],
   companyName: "",
@@ -51,17 +51,17 @@ const defaultFormData: BillFormData = {
   products: [
     {
       id: 0,
-      quantity: 0,
-      rate: 0,
+      quantity: "",
+      rate: "",
       productName: "",
-      amount: 0,
+      amount: "",
     },
   ],
-  previousAmount: 0,
-  aluminumTotal: 0,
-  totalAmount: 0,
-  receivedAmount: 0,
-  grandTotal: 0,
+  previousAmount: "",
+  aluminumTotal: "",
+  totalAmount: "",
+  receivedAmount: "",
+  grandTotal: "",
 };
 
 const HardwareBillingContext = createContext<BillingContextType | undefined>(
@@ -84,11 +84,11 @@ export const HardwareBillingProvider = ({
           id:
             prev.products.length > 0
               ? Math.max(...prev.products.map((p) => p.id)) + 1
-              : 1, // incrementing IDs
+              : 1,
           productName: "",
-          quantity: 0,
-          rate: 0,
-          amount: 0,
+          quantity: "",
+          rate: "",
+          amount: "",
         },
       ],
     }));
@@ -104,14 +104,9 @@ export const HardwareBillingProvider = ({
   const updateItem = (id: number, field: keyof ProductItem, value: any) => {
     setFormData((prev) => ({
       ...prev,
-      products: prev.products.map((item) => {
-        if (item.id === id) {
-          const updatedItem = { ...item, [field]: value };
-
-          return updatedItem;
-        }
-        return item;
-      }),
+      products: prev.products.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      ),
     }));
   };
 
@@ -126,16 +121,16 @@ export const HardwareBillingProvider = ({
   };
 
   const calculateTotal = () => {
-    const total = formData.products.reduce(
-      (acc, item) =>
-        acc +
-        item.quantity * item.rate +
-        formData.previousAmount +
-        formData.aluminumTotal,
-      0
-    );
+    const total =
+      formData.products.reduce((acc, item) => {
+        const qty = Number(item.quantity) || 0;
+        const rate = Number(item.rate) || 0;
+        return acc + qty * rate;
+      }, 0) +
+      (Number(formData.previousAmount) || 0) +
+      (Number(formData.aluminumTotal) || 0);
 
-    const grandTotal = total - formData.receivedAmount;
+    const grandTotal = total - (Number(formData.receivedAmount) || 0);
 
     return { total, grandTotal };
   };
