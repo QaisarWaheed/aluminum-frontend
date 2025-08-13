@@ -358,7 +358,7 @@ export default function HardwareBilling() {
           </Group>
           <Group mt="xl" justify="space-between">
             <Button p={11} onClick={() => navigate("/")}>
-              <A-Bills></A-Bills>
+              A-Bills
             </Button>
             <Button onClick={() => navigate("/aluminum-bills")} p={4}>
               A-Bill Save
