@@ -314,7 +314,7 @@ export default function AluminumBilling() {
                       }
                     />
                   </td>
-                  <td>{item.amount.toFixed(2)}</td>
+                  <td>{Number(item.amount)}</td>
                   <td>
                     <Button
                       color="red"

@@ -7,29 +7,29 @@ import React, {
 
 export interface ProductItem {
   id: number;
-  section: number;
-  size: number;
-  quantity: number;
+  section: string | number;
+  size: string | number;
+  quantity: string | number;
   gaje: string;
   color: string;
-  rate: number;
-  discount: number;
-  amount: number;
+  rate: string | number;
+  discount: string | number;
+  amount: string | number;
 }
 
 export interface BillFormData {
-  invoiceNo: number;
+  invoiceNo: string | number;
   customerName: string;
   date: string;
   companyName: string;
   city: string;
   products: ProductItem[];
-  discountedAmount: number;
-  totalAmount: number;
-  previousAmount: number;
-  hardwareAmount: number;
-  receivedAmount: number;
-  grandTotal: number;
+  discountedAmount: string | number;
+  totalAmount: string | number;
+  previousAmount: string | number;
+  hardwareAmount: string | number;
+  receivedAmount: string | number;
+  grandTotal: string | number;
 }
 
 interface BillingContextType {
@@ -49,54 +49,52 @@ interface BillingContextType {
 }
 
 const defaultFormData: BillFormData = {
-  invoiceNo: 1,
+  invoiceNo: "",
   customerName: "",
   date: new Date().toISOString().split("T")[0],
-
   companyName: "",
   city: "Multan",
   products: [
     {
       id: 1,
-      section: 0,
-      size: 0,
-      quantity: 0,
+      section: "",
+      size: "",
+      quantity: "",
       gaje: "",
       color: "",
-      rate: 0,
-      discount: 0,
-      amount: 0,
+      rate: "",
+      discount: "",
+      amount: "",
     },
   ],
-  discountedAmount: 0,
-  totalAmount: 0,
-  previousAmount: 0,
-  hardwareAmount: 0,
-  receivedAmount: 0,
-  grandTotal: 0,
+  discountedAmount: "",
+  totalAmount: "",
+  previousAmount: "",
+  hardwareAmount: "",
+  receivedAmount: "",
+  grandTotal: "",
 };
 
 const BillingContext = createContext<BillingContextType | undefined>(undefined);
 
 export const BillingProvider = ({ children }: { children: ReactNode }) => {
   const [formData, setFormData] = useState<BillFormData>(defaultFormData);
-  let totalItems = 1;
+
   const addItem = () => {
-    totalItems += 1;
     setFormData((prev) => ({
       ...prev,
       products: [
         ...prev.products,
         {
           id: Date.now(),
-          section: 0,
-          size: 0,
-          quantity: 0,
+          section: "",
+          size: "",
+          quantity: "",
           gaje: "",
           color: "",
-          rate: 0,
-          discount: 0,
-          amount: 0,
+          rate: "",
+          discount: "",
+          amount: "",
         },
       ],
     }));
@@ -117,14 +115,14 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
           ? (() => {
               const updatedItem = { ...item, [field]: value };
 
-              const baseAmount =
-                Number(updatedItem.size) *
-                Number(updatedItem.quantity) *
-                Number(updatedItem.rate);
+              const size = Number(updatedItem.size) || 0;
+              const quantity = Number(updatedItem.quantity) || 0;
+              const rate = Number(updatedItem.rate) || 0;
+              const discount = Number(updatedItem.discount) || 0;
 
-              const discountAmount =
-                (baseAmount * Number(updatedItem.discount)) / 100;
-              updatedItem.amount = baseAmount - discountAmount;
+              const baseAmount = size * quantity * rate;
+              const discountAmount = (baseAmount * discount) / 100;
+              updatedItem.amount = baseAmount - discountAmount || "";
 
               return updatedItem;
             })()
@@ -142,31 +140,36 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
       [field]: value,
     }));
   };
-  let discountedAmount = 0;
+
   const calculateTotal = () => {
-    const total = formData.products.reduce(
-      (acc, item) =>
-        acc +
-        item.size * item.quantity * item.rate +
-        formData.previousAmount +
-        formData.hardwareAmount -
-        discountedAmount,
-      0
-    );
+    let discountedAmount = 0;
 
-    discountedAmount = formData.products.reduce((acc, item) => {
-      const baseAmount = item.size * item.quantity * item.rate;
-      return acc + (baseAmount * (item.discount || 0)) / 100;
+    const total = formData.products.reduce((acc, item) => {
+      const size = Number(item.size) || 0;
+      const quantity = Number(item.quantity) || 0;
+      const rate = Number(item.rate) || 0;
+      const discount = Number(item.discount) || 0;
+
+      const baseAmount = size * quantity * rate;
+      discountedAmount += (baseAmount * discount) / 100;
+
+      return acc + baseAmount;
     }, 0);
-    console.log(discountedAmount);
 
-    const discountedTotal = total - discountedAmount;
+    const totalWithPrevious =
+      total +
+      (Number(formData.previousAmount) || 0) +
+      (Number(formData.hardwareAmount) || 0) -
+      discountedAmount;
 
     const grandTotal =
-      total - formData.discountedAmount - formData.receivedAmount;
+      totalWithPrevious -
+      (Number(formData.discountedAmount) || 0) -
+      (Number(formData.receivedAmount) || 0);
 
-    return { total, discountedAmount, discountedTotal, grandTotal };
+    return { total: totalWithPrevious, discountedAmount, grandTotal };
   };
+
   return (
     <BillingContext.Provider
       value={{
