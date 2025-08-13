@@ -18,6 +18,19 @@ export default function HardwareBilling() {
   const navigate = useNavigate();
   const { formData, addItem, removeItem, updateItem, updateCustomerInfo } =
     useHardwareBilling();
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        event.preventDefault();
+        addItem();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [addItem]);
 
   const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
