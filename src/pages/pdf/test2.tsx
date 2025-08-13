@@ -19,7 +19,6 @@ export function generateAluminumInvoicePdf(
 ) {
   const doc = new jsPDF();
 
-  // Title and header
   doc.setFontSize(18);
   doc.text(`Aluminum Invoice #${data.invoiceNo}`, 14, 20);
 
@@ -27,7 +26,6 @@ export function generateAluminumInvoicePdf(
   doc.text(`Date: ${new Date(data.date).toLocaleDateString()}`, 14, 30);
   doc.text(`Customer: ${data.customerName}`, 14, 38);
 
-  // Table headers for aluminum products
   const headers = [
     "Quantity",
     "Section",
@@ -39,19 +37,17 @@ export function generateAluminumInvoicePdf(
     "Amount",
   ];
 
-  // Map products to rows
   const rows = data.products.map((p) => [
     p.quantity.toString(),
     p.section.toString(),
     p.size.toString(),
     p.gaje,
     p.color,
-    p.rate.toFixed(2),
-    p.discount.toFixed(2),
-    p.amount.toFixed(2),
+    p.rate,
+    p.discount,
+    p.amount,
   ]);
 
-  // Generate table of products
   autoTable(doc, {
     startY: 45,
     head: [headers],
