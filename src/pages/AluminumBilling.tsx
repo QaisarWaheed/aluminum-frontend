@@ -425,8 +425,6 @@ export default function AluminumBilling() {
           </Group>
         </Box>
 
-        {/* Action Buttons */}
-
         <Group justify="space-between" mt="xl">
           <Button onClick={addItem}>Add Item</Button>
           <Button onClick={submitBill}>Save Bill</Button>
