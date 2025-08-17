@@ -8,6 +8,8 @@ import {
   Title,
   Text,
   Select,
+  Flex,
+  ScrollArea,
 } from "@mantine/core";
 import axios from "axios";
 import { useBilling } from "./context/AluminumContext";
@@ -15,6 +17,7 @@ import "../App.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import "../App.css";
+
 export default function AluminumBilling() {
   const {
     formData,
@@ -127,8 +130,13 @@ export default function AluminumBilling() {
             mb="lg"
             style={{ borderBottom: "1px solid #ddd", paddingBottom: "1rem" }}
           >
-            <Group justify="space-between" align="flex-start" wrap="nowrap">
-              <Stack gap={2} align="flex-end">
+            <Flex
+              justify="space-between"
+              align="flex-start"
+              wrap="wrap"
+              gap="lg"
+            >
+              <Stack gap={2} align="flex-start" flex={1}>
                 <Title
                   order={1}
                   style={{ fontSize: "20px", letterSpacing: 2 }}
@@ -178,22 +186,22 @@ export default function AluminumBilling() {
                 />
               </Stack>
 
-              <Stack gap={2} align="center" mt={20}>
+              <Stack gap={2} align="end" mt={20} flex={1}>
                 <Title order={4} style={{ marginBottom: -4 }}>
                   Address
                 </Title>
-                <Text size="xs" c="gray">
+                <Text size="xs" c="gray" ta="center">
                   Badozai Street, Outside Bohar Gate, Multan, Pakistan
                 </Text>
-                <Text size="xs" c="gray">
+                <Text size="xs" c="gray" ta="center">
                   Saturday–Thursday | 09 AM – 08 PM
                 </Text>
               </Stack>
-            </Group>
+            </Flex>
           </Box>
 
           {/* Customer Info */}
-          <Group justify="space-between">
+          <Flex wrap="wrap" gap="md">
             <TextInput
               type="number"
               label="Invoice No"
@@ -201,14 +209,14 @@ export default function AluminumBilling() {
               value={formData.invoiceNo || ""}
               onChange={handleCustomerChange}
               disabled
-              w={200}
+              style={{ flex: "1 1 150px" }}
             />
             <TextInput
               label="Customer Name"
               name="customerName"
               value={formData.customerName}
               onChange={handleCustomerChange}
-              w={260}
+              style={{ flex: "1 1 200px" }}
             />
             <TextInput
               type="date"
@@ -216,159 +224,169 @@ export default function AluminumBilling() {
               name="date"
               value={formData.date}
               onChange={handleCustomerChange}
-              w={260}
+              style={{ flex: "1 1 200px" }}
             />
             <TextInput
               label="Company Name"
               name="companyName"
               value={formData.companyName}
               onChange={handleCustomerChange}
-              w={250}
+              style={{ flex: "1 1 200px" }}
             />
-            <TextInput label="City" w={260} defaultValue={"Multan"} />
-          </Group>
+            <TextInput
+              label="City"
+              defaultValue={"Multan"}
+              style={{ flex: "1 1 150px" }}
+            />
+          </Flex>
 
           {/* Items Table */}
-          <Table withTableBorder highlightOnHover mt={20}>
-            <thead>
-              <tr>
-                <th>S/No</th>
-                <th>Section</th>
-                <th>Size</th>
-                <th>Quantity</th>
-                <th>Gaje</th>
-                <th>Color</th>
-                <th>Rate</th>
-                <th>Discount %</th>
-                <th>Amount</th>
-                <th>Remove</th>
-              </tr>
-            </thead>
-            <tbody>
-              {formData.products.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{index + 1}</td>
-                  <td>
-                    <TextInput
-                      value={item.section}
-                      onChange={(e) =>
-                        handleItemChange(
-                          item.id,
-                          "section",
-                          e.currentTarget.value
-                        )
-                      }
-                    />
-                  </td>
-                  <td>
-                    <TextInput
-                      value={item.size}
-                      onChange={(e) =>
-                        handleItemChange(item.id, "size", e.currentTarget.value)
-                      }
-                    />
-                  </td>
-                  <td>
-                    <TextInput
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        handleItemChange(
-                          item.id,
-                          "quantity",
-                          Number(e.currentTarget.value)
-                        )
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Select
-                      data={["0.9", "1.1", "1.2", "1.4", "1.6", "2.0"]}
-                      value={item.gaje}
-                      onChange={(value) =>
-                        handleItemChange(item.id, "gaje", value || "")
-                      }
-                      checkIconPosition="right"
-                    />
-                  </td>
-                  <td>
-                    <Select
-                      data={[
-                        "CH",
-                        "BLM",
-                        "WT",
-                        "SL",
-                        "WOOD",
-                        "SAHARA",
-                        "MALTI",
-                      ]}
-                      value={item.color}
-                      onChange={(value) =>
-                        handleItemChange(item.id, "color", value || "")
-                      }
-                      checkIconPosition="right"
-                      allowDeselect
-                    />
-                  </td>
-                  <td>
-                    <TextInput
-                      type="number"
-                      value={item.rate}
-                      onChange={(e) =>
-                        handleItemChange(
-                          item.id,
-                          "rate",
-                          Number(e.currentTarget.value)
-                        )
-                      }
-                    />
-                  </td>
-                  <td>
-                    <TextInput
-                      type="number"
-                      value={item.discount}
-                      onChange={(e) =>
-                        handleItemChange(
-                          item.id,
-                          "discount",
-                          Number(e.currentTarget.value)
-                        )
-                      }
-                    />
-                  </td>
-                  <td>{Number(item.amount)}</td>
-                  <td>
-                    <Button
-                      color="red"
-                      size="xs"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      Remove
-                    </Button>
-                  </td>
+          <ScrollArea mt={20}>
+            <Table withTableBorder highlightOnHover>
+              <thead>
+                <tr>
+                  <th>S/No</th>
+                  <th>Section</th>
+                  <th>Size</th>
+                  <th>Quantity</th>
+                  <th>Gaje</th>
+                  <th>Color</th>
+                  <th>Rate</th>
+                  <th>Discount %</th>
+                  <th>Amount</th>
+                  <th>Remove</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {formData.products.map((item, index) => (
+                  <tr key={item.id}>
+                    <td>{index + 1}</td>
+                    <td>
+                      <TextInput
+                        value={item.section}
+                        onChange={(e) =>
+                          handleItemChange(
+                            item.id,
+                            "section",
+                            e.currentTarget.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <TextInput
+                        value={item.size}
+                        onChange={(e) =>
+                          handleItemChange(
+                            item.id,
+                            "size",
+                            e.currentTarget.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <TextInput
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) =>
+                          handleItemChange(
+                            item.id,
+                            "quantity",
+                            Number(e.currentTarget.value)
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <Select
+                        data={["0.9", "1.1", "1.2", "1.4", "1.6", "2.0"]}
+                        value={item.gaje}
+                        onChange={(value) =>
+                          handleItemChange(item.id, "gaje", value || "")
+                        }
+                        checkIconPosition="right"
+                      />
+                    </td>
+                    <td>
+                      <Select
+                        data={[
+                          "CH",
+                          "BLM",
+                          "WT",
+                          "SL",
+                          "WOOD",
+                          "SAHARA",
+                          "MALTI",
+                        ]}
+                        value={item.color}
+                        onChange={(value) =>
+                          handleItemChange(item.id, "color", value || "")
+                        }
+                        checkIconPosition="right"
+                        allowDeselect
+                      />
+                    </td>
+                    <td>
+                      <TextInput
+                        type="number"
+                        value={item.rate}
+                        onChange={(e) =>
+                          handleItemChange(
+                            item.id,
+                            "rate",
+                            Number(e.currentTarget.value)
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <TextInput
+                        type="number"
+                        value={item.discount}
+                        onChange={(e) =>
+                          handleItemChange(
+                            item.id,
+                            "discount",
+                            Number(e.currentTarget.value)
+                          )
+                        }
+                      />
+                    </td>
+                    <td>{Number(item.amount)}</td>
+                    <td>
+                      <Button
+                        color="red"
+                        size="xs"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        Remove
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </ScrollArea>
 
           {/* Totals */}
-
-          <Group mt="md">
+          <Flex wrap="wrap" gap="md" mt="md">
             <Box
               p="md"
               style={{
                 backgroundColor: "#f9f9f9",
                 borderRadius: 8,
                 border: "1px solid #eee",
-                gap: "20px",
+                flex: "1 1 300px",
               }}
             >
-              <div style={{ display: "flex", gap: "20px" }}>
+              <Flex wrap="wrap" gap="md">
                 <div
                   style={{
                     backgroundColor: "#f9f9f9",
                     border: "1px solid #eee",
                     padding: "5px",
+                    flex: "1 1 150px",
                   }}
                 >
                   <strong>Discounted Amount:</strong> Rs.{" "}
@@ -383,6 +401,7 @@ export default function AluminumBilling() {
                   name="previousAmount"
                   bg={"#f9f9f9"}
                   placeholder="0.00"
+                  style={{ flex: "1 1 150px" }}
                 />
                 <TextInput
                   label="Hardware Total"
@@ -392,12 +411,14 @@ export default function AluminumBilling() {
                   onChange={handleCustomerChange}
                   bg={"#f9f9f9"}
                   placeholder="0.00"
+                  style={{ flex: "1 1 150px" }}
                 />
                 <div
                   style={{
                     backgroundColor: "#f9f9f9",
                     border: "1px solid #eee",
                     padding: "5px",
+                    flex: "1 1 150px",
                   }}
                 >
                   <strong>Total Amount:</strong> Rs. {total.toFixed(2)}
@@ -410,27 +431,30 @@ export default function AluminumBilling() {
                   value={formData.receivedAmount}
                   onChange={handleCustomerChange}
                   bg={"#f9f9f9"}
+                  style={{ flex: "1 1 150px" }}
                 />
                 <div
                   style={{
                     backgroundColor: "#f9f9f9",
                     border: "1px solid #eee",
                     padding: "5px",
+                    flex: "1 1 150px",
                   }}
                 >
                   <strong>Grand Amount:</strong> Rs. {grandTotal.toFixed(2)}
                 </div>
-              </div>
+              </Flex>
             </Box>
-          </Group>
+          </Flex>
         </Box>
 
-        <Group justify="space-between" mt="xl">
+        <Flex wrap="wrap" justify="center" gap="md" mt="xl">
           <Button onClick={addItem}>Add Item</Button>
           <Button onClick={submitBill}>Save Bill</Button>
           <Button onClick={() => window.print()}>Print Bill</Button>
-        </Group>
-        <Group justify="space-between" mt="xl">
+        </Flex>
+
+        <Flex wrap="wrap" justify="center" gap="md" mt="xl">
           <Button onClick={() => navigate("/hardware")}>H Billing</Button>
           <Button onClick={() => navigate("/aluminum-bills")} p={10}>
             A-Bill Save
@@ -438,7 +462,7 @@ export default function AluminumBilling() {
           <Button onClick={() => navigate("/hardware-bills")} p={10}>
             H-Bill Save
           </Button>
-        </Group>
+        </Flex>
       </Stack>
     </Box>
   );

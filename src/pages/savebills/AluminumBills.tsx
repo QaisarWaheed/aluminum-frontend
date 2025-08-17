@@ -14,7 +14,7 @@ import {
 import axios from "axios";
 import { IconSearch } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import type { ProductItem } from "../context/AluminumContext"; // If aluminum products differ, create new type accordingly
+import type { ProductItem } from "../context/AluminumContext";
 import { generateAluminumInvoicePdf } from "../pdf/test2";
 
 export interface AluminumInvoice {
@@ -84,9 +84,7 @@ export default function AluminumBills() {
     setError(null);
     try {
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_API_URL
-        }/aluminum/find-invoice/${searchInvoiceNo}`
+        `${import.meta.env.VITE_API_URL}/aluminum/find-invoice/${searchInvoiceNo}`
       );
       setInvoices([res.data]);
     } catch (err: any) {
@@ -107,7 +105,8 @@ export default function AluminumBills() {
 
   return (
     <Stack p="md" gap="xl">
-      <Group justify="center" gap="sm">
+      {/* Top Nav Buttons */}
+      <Group justify="center" gap="sm" wrap="wrap">
         <Button
           variant="subtle"
           c="dark"
@@ -134,7 +133,8 @@ export default function AluminumBills() {
         </Button>
       </Group>
 
-      <Group mb="md">
+      {/* Search Input */}
+      <Group mb="md" wrap="wrap">
         <TextInput
           placeholder="Search invoice no..."
           leftSection={<IconSearch size={16} />}
@@ -142,7 +142,7 @@ export default function AluminumBills() {
           value={searchInvoiceNo}
           onChange={(e) => setSearchInvoiceNo(e.currentTarget.value)}
           type="number"
-          style={{ maxWidth: 250 }}
+          style={{ maxWidth: 250, flexGrow: 1 }}
         />
         <Button onClick={handleSearch} disabled={!searchInvoiceNo}>
           Search
@@ -170,9 +170,10 @@ export default function AluminumBills() {
             p="md"
             mb="xl"
             withBorder
-            style={{ width: "100%" }}
+            style={{ width: "100%", overflowX: "auto" }}
           >
-            <Group justify="apart" mb="sm">
+            {/* Header */}
+            <Group justify="space-between" mb="sm" wrap="wrap">
               <Text fw={600} size="md">
                 Invoice #{inv.invoiceNo} - {inv.customerName}
               </Text>
@@ -189,48 +190,54 @@ export default function AluminumBills() {
               </Button>
             </Group>
 
-            <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="sm">
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th style={{ textAlign: "center" }}>Quantity</Table.Th>
-                  <Table.Th style={{ textAlign: "center" }}>Section</Table.Th>
-                  <Table.Th style={{ textAlign: "center" }}>size</Table.Th>
-                  <Table.Th style={{ textAlign: "center" }}>Discount</Table.Th>
-
-                  <Table.Th style={{ textAlign: "center" }}>Rate</Table.Th>
-                  <Table.Th style={{ textAlign: "center" }}>Amount</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-
-              <Table.Tbody>
-                {inv.products.map((prod, i) => (
-                  <Table.Tr key={i}>
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.quantity}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.section}
-                    </Table.Td>
-
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.size}
-                    </Table.Td>
-
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.discount}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.rate}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.amount}
-                    </Table.Td>
+            {/* Table */}
+            <ScrollArea>
+              <Table
+                highlightOnHover
+                verticalSpacing="sm"
+                horizontalSpacing="sm"
+                striped
+              >
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th style={{ textAlign: "center" }}>Quantity</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Section</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Size</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Discount</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Rate</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Amount</Table.Th>
                   </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
+                </Table.Thead>
 
-            <Group justify="right" mt="md" gap="md">
+                <Table.Tbody>
+                  {inv.products.map((prod, i) => (
+                    <Table.Tr key={i}>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.quantity}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.section}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.size}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.discount}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.rate}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.amount}
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </ScrollArea>
+
+            {/* Totals */}
+            <Group justify="flex-end" mt="md" gap="md" wrap="wrap">
               <Text>Total: {inv.totalAmount}</Text>
               <Text>Previous: {inv.previousAmount}</Text>
               <Text>Received: {inv.receivedAmount}</Text>

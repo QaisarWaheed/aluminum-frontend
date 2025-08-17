@@ -10,6 +10,7 @@ import {
   ScrollArea,
   Text,
   TextInput,
+  Flex,
 } from "@mantine/core";
 import axios from "axios";
 import { IconSearch } from "@tabler/icons-react";
@@ -100,8 +101,8 @@ export default function HardwareBills() {
 
   return (
     <Stack p="md" gap="xl">
-      <Group justify="center" gap="sm">
-        {/* navigation buttons */}
+      {/* navigation buttons */}
+      <Group justify="center" gap="sm" wrap="wrap">
         <Button
           variant="subtle"
           c="dark"
@@ -128,7 +129,12 @@ export default function HardwareBills() {
         </Button>
       </Group>
 
-      <Group mb="md">
+      {/* Search bar responsive */}
+      <Flex
+        gap="sm"
+        direction={{ base: "column", sm: "row" }}
+        align={{ base: "stretch", sm: "center" }}
+      >
         <TextInput
           placeholder="Search invoice no..."
           leftSection={<IconSearch size={16} />}
@@ -136,16 +142,16 @@ export default function HardwareBills() {
           value={searchInvoiceNo}
           onChange={(e) => setSearchInvoiceNo(e.currentTarget.value)}
           type="number"
-          style={{ maxWidth: 250 }}
+          style={{ flex: 1, minWidth: "200px" }}
         />
         <Button onClick={handleSearch} disabled={!searchInvoiceNo}>
           Search
         </Button>
-      </Group>
+      </Flex>
 
       <ScrollArea style={{ maxHeight: "70vh" }}>
         {invoices.length === 0 && (
-          <Text ta="center" color="red">
+          <Text ta="center" c="red">
             No invoices found.
           </Text>
         )}
@@ -160,7 +166,7 @@ export default function HardwareBills() {
             withBorder
             style={{ width: "100%" }}
           >
-            <Group justify="apart" mb="sm">
+            <Group justify="apart" mb="sm" wrap="wrap">
               <Text fw={600} size="md">
                 Invoice #{inv.invoiceNo} - {inv.customerName}
               </Text>
@@ -173,39 +179,47 @@ export default function HardwareBills() {
               </Button>
             </Group>
 
-            <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="sm">
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th style={{ textAlign: "center" }}>Quantity</Table.Th>
-                  <Table.Th style={{ textAlign: "center" }}>
-                    Product Name
-                  </Table.Th>
-                  <Table.Th style={{ textAlign: "center" }}>Rate</Table.Th>
-                  <Table.Th style={{ textAlign: "center" }}>Amount</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-
-              <Table.Tbody>
-                {inv.products.map((prod, i) => (
-                  <Table.Tr key={i}>
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.quantity}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.productName}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.rate}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: "center" }}>
-                      {prod.amount}
-                    </Table.Td>
+            {/* responsive table */}
+            <ScrollArea>
+              <Table
+                highlightOnHover
+                verticalSpacing="sm"
+                horizontalSpacing="sm"
+              >
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th style={{ textAlign: "center" }}>Quantity</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>
+                      Product Name
+                    </Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Rate</Table.Th>
+                    <Table.Th style={{ textAlign: "center" }}>Amount</Table.Th>
                   </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
+                </Table.Thead>
 
-            <Group justify="right" mt="md" gap="md">
+                <Table.Tbody>
+                  {inv.products.map((prod, i) => (
+                    <Table.Tr key={i}>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.quantity}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.productName}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.rate}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: "center" }}>
+                        {prod.amount}
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </ScrollArea>
+
+            {/* totals section responsive */}
+            <Group justify="right" mt="md" gap="md" wrap="wrap">
               <Text>Total: {inv.totalAmount}</Text>
               <Text>Previous: {inv.previousAmount}</Text>
               <Text>Received: {inv.receivedAmount}</Text>

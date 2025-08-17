@@ -7,6 +7,8 @@ import {
   TextInput,
   Text,
   Title,
+  Flex,
+  ScrollArea,
 } from "@mantine/core";
 import { useHardwareBilling } from "./context/HardwareContext";
 import axios from "axios";
@@ -18,6 +20,7 @@ export default function HardwareBilling() {
   const navigate = useNavigate();
   const { formData, addItem, removeItem, updateItem, updateCustomerInfo } =
     useHardwareBilling();
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Shift") {
@@ -25,22 +28,14 @@ export default function HardwareBilling() {
         addItem();
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [addItem]);
 
   const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
-
     let newValue: string | number | null = value;
-
-    if (type === "number") {
-      newValue = value === "" ? "" : Number(value);
-    }
-
+    if (type === "number") newValue = value === "" ? "" : Number(value);
     updateCustomerInfo(name as any, newValue);
   };
 
@@ -48,9 +43,7 @@ export default function HardwareBilling() {
     id: number,
     field: keyof (typeof formData.products)[number],
     value: string | number
-  ) => {
-    updateItem(id, field, value);
-  };
+  ) => updateItem(id, field, value);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/hardware/next-invoice-id`)
@@ -64,12 +57,11 @@ export default function HardwareBilling() {
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/hardware/latest-invoice-no`
         );
-        updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1); // next available number
+        updateCustomerInfo("invoiceNo", res.data.latestInvoiceNo + 1);
       } catch (error) {
         console.error("Error fetching latest invoice number:", error);
       }
     };
-
     fetchLatestInvoiceNo();
   }, []);
 
@@ -79,14 +71,10 @@ export default function HardwareBilling() {
         `${import.meta.env.VITE_API_URL}/hardware/add-hardware`,
         formData
       );
-
-      console.log("Bill submitted successfully:", response.data);
       alert("Bill saved!");
-
       if (typeof response.data.invoiceNo === "number") {
         updateCustomerInfo("invoiceNo", response.data.invoiceNo);
       }
-
       window.location.reload();
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
@@ -99,12 +87,12 @@ export default function HardwareBilling() {
       }
     }
   };
+
   const totalAmount = formData.products.reduce((acc, item) => {
     const quantity = Number(item.quantity) || 0;
     const rate = Number(item.rate) || 0;
     const prevAmount = Number(formData.previousAmount) || 0;
     const aluminumTotal = Number(formData.aluminumTotal) || 0;
-
     return acc + quantity * rate + prevAmount + aluminumTotal;
   }, 0);
 
@@ -124,12 +112,17 @@ export default function HardwareBilling() {
           }}
         >
           {/* HEADER */}
-          <Box
+           <Box
             mb="lg"
             style={{ borderBottom: "1px solid #ddd", paddingBottom: "1rem" }}
           >
-            <Group justify="space-between" align="flex-start" wrap="nowrap">
-              <Stack gap={2} align="flex-end">
+            <Flex
+              justify="space-between"
+              align="flex-start"
+              wrap="wrap"
+              gap="lg"
+            >
+              <Stack gap={2} align="flex-start" flex={1}>
                 <Title
                   order={1}
                   style={{ fontSize: "20px", letterSpacing: 2 }}
@@ -179,18 +172,18 @@ export default function HardwareBilling() {
                 />
               </Stack>
 
-              <Stack gap={2} align="center" mt={20}>
+              <Stack gap={2} align="end" mt={20} flex={1}>
                 <Title order={4} style={{ marginBottom: -4 }}>
                   Address
                 </Title>
-                <Text size="xs" c="gray">
+                <Text size="xs" c="gray" ta="center">
                   Badozai Street, Outside Bohar Gate, Multan, Pakistan
                 </Text>
-                <Text size="xs" c="gray">
+                <Text size="xs" c="gray" ta="center">
                   Saturday–Thursday | 09 AM – 08 PM
                 </Text>
               </Stack>
-            </Group>
+            </Flex>
           </Box>
 
           {/* BILL INFO */}
@@ -231,7 +224,7 @@ export default function HardwareBilling() {
           </Group>
 
           {/* PRODUCTS TABLE */}
-          <Box maw={900} mx="auto" mt="md">
+          <ScrollArea mt="md">
             <Table withTableBorder highlightOnHover mt={20}>
               <thead>
                 <tr>
@@ -303,62 +296,55 @@ export default function HardwareBilling() {
                 ))}
               </tbody>
             </Table>
+          </ScrollArea>
 
-            {/* TOTALS */}
-            <Group mt="md">
-              <Box
-                p="md"
-                style={{
-                  fontSize: "12px",
-                  backgroundColor: "#f9f9f9",
-                  borderRadius: 8,
-                  border: "1px solid #eee",
-                }}
-              >
-                <div style={{ display: "flex", gap: "20px" }}>
-                  <TextInput
-                    size="xs"
-                    label="Previous Amount"
-                    type="number"
-                    name="previousAmount"
-                    value={formData.previousAmount}
-                    onChange={handleCustomerChange}
-                    mt="xs"
-                  />
-                  <TextInput
-                    size="xs"
-                    label="Aluminum Amount"
-                    type="number"
-                    name="aluminumTotal"
-                    value={formData.aluminumTotal}
-                    onChange={handleCustomerChange}
-                    mt="xs"
-                  />
-
-                  <div style={{ marginTop: "28px" }}>
-                    <strong>Total Amount:</strong> Rs. {totalAmount.toFixed(2)}
-                  </div>
-
-                  <TextInput
-                    size="xs"
-                    label="Received Amount"
-                    type="number"
-                    name="receivedAmount"
-                    value={formData.receivedAmount}
-                    onChange={handleCustomerChange}
-                    mt="xs"
-                  />
-                  <div style={{ marginTop: "28px" }}>
-                    <strong>Grand Total:</strong> Rs. {grandTotal}
-                  </div>
-                </div>
-              </Box>
-            </Group>
-          </Box>
+          {/* TOTALS */}
+          <Flex
+            direction={{ base: "column", sm: "row" }}
+            wrap="wrap"
+            gap="md"
+            justify={{ base: "flex-start", sm: "flex-end" }}
+            mt="md"
+          >
+            <TextInput
+              size="xs"
+              label="Previous Amount"
+              type="number"
+              name="previousAmount"
+              value={formData.previousAmount}
+              onChange={handleCustomerChange}
+              w={{ base: "100%", sm: 180 }}
+            />
+            <TextInput
+              size="xs"
+              label="Aluminum Amount"
+              type="number"
+              name="aluminumTotal"
+              value={formData.aluminumTotal}
+              onChange={handleCustomerChange}
+              w={{ base: "100%", sm: 180 }}
+            />
+            <Text fw={500} mt={{ base: 0, sm: 28 }}>
+              Total Amount: Rs. {totalAmount.toFixed(2)}
+            </Text>
+            <TextInput
+              size="xs"
+              label="Received Amount"
+              type="number"
+              name="receivedAmount"
+              value={formData.receivedAmount}
+              onChange={handleCustomerChange}
+              w={{ base: "100%", sm: 180 }}
+            />
+            <Text fw={700} mt={{ base: 0, sm: 28 }}>
+              Grand Total: Rs. {grandTotal}
+            </Text>
+          </Flex>
         </Box>
 
-        <Stack mt="xl" maw={900} mx={500}>
-          <Group maw={900} justify="space-between">
+        {/* BUTTONS */}
+        <Stack mt="xl" maw={900} mx="auto" w="100%">
+          <Group justify="center" gap="sm" wrap="wrap">
             <Button size="xs" onClick={() => addItem()}>
               Add Item
             </Button>
@@ -369,7 +355,8 @@ export default function HardwareBilling() {
               Print Bill
             </Button>
           </Group>
-          <Group mt="xl" justify="space-between">
+
+          <Group justify="center" gap="sm" wrap="wrap" mt="xl">
             <Button p={11} onClick={() => navigate("/")}>
               A-Bills
             </Button>
