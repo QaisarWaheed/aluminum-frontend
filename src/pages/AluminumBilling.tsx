@@ -42,7 +42,10 @@ export default function AluminumBilling() {
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/aluminum/next-invoice-id`)
       .then((res) => res.json())
-      .then((data) => (formData.invoiceNo = data.nextId));
+      .then((data) => (formData.invoiceNo = data.next))
+      .catch((error) =>
+        console.error("Error fetching next invoice ID:", error)
+      );
   }, []);
 
   useEffect(() => {
@@ -110,6 +113,12 @@ export default function AluminumBilling() {
   };
 
   const { total, discountedAmount, grandTotal } = calculateTotal();
+
+  // Calculate sum of all item amounts
+  const totalBillAmount = formData.products.reduce(
+    (sum, item) => sum + (Number(item.amount) || 0),
+    0
+  );
 
   return (
     <Box p="md">
@@ -250,7 +259,11 @@ export default function AluminumBilling() {
                     <th>Gaje</th>
                     <th>Color</th>
                     <th>Rate</th>
-                    <th>Discount %</th>
+                    <th style={{ width: 80 }}>
+                      {" "}
+                      {/* Make Discount % column narrower */}
+                      <span style={{ fontSize: "13px" }}>Discount %</span>
+                    </th>
                     <th>Amount</th>
                     <th>Remove</th>
                   </tr>
@@ -338,7 +351,7 @@ export default function AluminumBilling() {
                           }
                         />
                       </td>
-                      <td>
+                      <td style={{ width: 80 }}>
                         <TextInput
                           type="number"
                           value={item.discount}
@@ -349,6 +362,7 @@ export default function AluminumBilling() {
                               Number(e.currentTarget.value)
                             )
                           }
+                          style={{ fontSize: "13px" }} // Smaller font for discount input
                         />
                       </td>
                       <td>{Number(item.amount)}</td>
@@ -363,6 +377,24 @@ export default function AluminumBilling() {
                       </td>
                     </tr>
                   ))}
+                  {/* Total Bill row directly under Amount column */}
+                  <tr>
+                    <td colSpan={8}></td>
+                    <td
+                      style={{
+                        fontWeight: "bold",
+                        color: "green",
+                        borderTop: "2px solid #222",
+                      }}
+                    >
+                      Total Bill
+                      <br />
+                      <span style={{ fontSize: "16px" }}>
+                        {totalBillAmount}
+                      </span>
+                    </td>
+                    <td></td>
+                  </tr>
                 </tbody>
               </Table>
             </div>
