@@ -418,7 +418,7 @@ export default function AluminumBilling() {
                 />
                 <div
                   style={{
-                    backgroundColor: "green",
+                    backgroundColor: "yellow",
                     border: "1px solid #eee",
                     padding: "5px",
                     flex: "1 1 120px",
@@ -439,7 +439,7 @@ export default function AluminumBilling() {
                 />
                 <div
                   style={{
-                    backgroundColor: "yellow",
+                    backgroundColor: "red",
                     border: "1px solid #eee",
                     padding: "5px",
                     flex: "1 1 120px",
