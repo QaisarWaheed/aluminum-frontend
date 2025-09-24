@@ -130,7 +130,10 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
 
               const baseAmount = size * quantity * rate;
               const discountAmount = (baseAmount * discount) / 100;
-              updatedItem.amount = baseAmount - discountAmount || "";
+              const finalAmount = baseAmount - discountAmount;
+              updatedItem.amount = finalAmount
+                ? Number(finalAmount.toFixed(2))
+                : "";
 
               return updatedItem;
             })()
@@ -174,7 +177,12 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
     // Grand Total (with received amount deducted)
     const grandTotal = total - (Number(formData.receivedAmount) || 0);
 
-    return { total, discountedAmount, grandTotal };
+    // Round all values to 2 decimal places
+    return {
+      total: Number(total.toFixed(2)),
+      discountedAmount: Number(discountedAmount.toFixed(2)),
+      grandTotal: Number(grandTotal.toFixed(2)),
+    };
   };
 
   return (

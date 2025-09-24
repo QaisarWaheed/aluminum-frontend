@@ -115,10 +115,6 @@ export default function AluminumBilling() {
   const { total, discountedAmount, grandTotal } = calculateTotal();
 
   // Calculate sum of all item amounts
-  const totalBillAmount = formData.products.reduce(
-    (sum, item) => sum + (Number(item.amount) || 0),
-    0
-  );
 
   return (
     <Box p="md">
@@ -249,7 +245,11 @@ export default function AluminumBilling() {
           {/* Items Table */}
           <ScrollArea mt={20} style={{ overflowX: "auto" }}>
             <div id="print-area">
-              <Table withTableBorder highlightOnHover style={{ minWidth: 900 }}>
+              <Table
+                withTableBorder
+                highlightOnHover
+                style={{ minWidth: 900, borderCollapse: "collapse" }}
+              >
                 <thead>
                   <tr>
                     <th>S/No</th>
@@ -260,8 +260,6 @@ export default function AluminumBilling() {
                     <th>Color</th>
                     <th>Rate</th>
                     <th style={{ width: 80 }}>
-                      {" "}
-                      {/* Make Discount % column narrower */}
                       <span style={{ fontSize: "13px" }}>Discount %</span>
                     </th>
                     <th>Amount</th>
@@ -377,22 +375,66 @@ export default function AluminumBilling() {
                       </td>
                     </tr>
                   ))}
-                  {/* Total Bill row directly under Amount column */}
+                  {/* Summary row for Discounted Amount and Total Bill */}
                   <tr>
-                    <td colSpan={8}></td>
+                    {/* Empty cells for S/No, Section, Size, Quantity, Gaje, Color, Rate */}
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    {/* Discount % column: Discounted Amount */}
                     <td
                       style={{
-                        fontWeight: "bold",
-                        color: "green",
-                        borderTop: "2px solid #222",
+                        padding: 0,
+                        border: 0,
+                        background: "none",
+                        width: 200,
                       }}
                     >
-                      Total Bill
-                      <br />
-                      <span style={{ fontSize: "16px" }}>
-                        {totalBillAmount}
-                      </span>
+                      <div
+                        style={{
+                          fontWeight: "bold",
+                          color: "#1971c2",
+                          textAlign: "center",
+                          letterSpacing: 1,
+                        }}
+                      >
+                        Discount Bill Amount
+                        <br />
+                        {discountedAmount.toFixed(2)}
+                      </div>
                     </td>
+                    {/* Amount column: Total Bill */}
+                    <td
+                      style={{
+                        padding: 0,
+                        border: 0,
+                        background: "none",
+                        width: 200,
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontWeight: "bold",
+                          color: "green",
+                          textAlign: "center",
+                          letterSpacing: 1,
+                        }}
+                      >
+                        Total Bill
+                        <br />
+                        {formData.products
+                          .reduce(
+                            (sum, item) => sum + (Number(item.amount) || 0),
+                            0
+                          )
+                          .toFixed(2)}
+                      </div>
+                    </td>
+                    {/* Remove column: empty */}
                     <td></td>
                   </tr>
                 </tbody>
@@ -417,16 +459,19 @@ export default function AluminumBilling() {
                 style={{ justifyContent: "space-between" }}
               >
                 <div
-                  style={{
-                    backgroundColor: "#f9f9f9",
-                    border: "1px solid #eee",
-                    padding: "5px",
-                    flex: "1 1 120px",
-                    minWidth: 120,
-                  }}
+                  style={
+                    {
+                      // REMOVE THIS WHOLE DIV FOR DISCOUNTED AMOUNT
+                      // backgroundColor: "#f9f9f9",
+                      // border: "1px solid #eee",
+                      // padding: "5px",
+                      // flex: "1 1 120px",
+                      // minWidth: 120,
+                    }
+                  }
                 >
-                  <strong>Discounted Amount:</strong> Rs.{" "}
-                  {discountedAmount.toFixed(2)}
+                  {/* <strong>Discounted Amount:</strong> Rs.{" "} */}
+                  {/* {discountedAmount.toFixed(2)} */}
                 </div>
                 <TextInput
                   label="Previous Amount"
