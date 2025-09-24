@@ -36,10 +36,14 @@ interface BillingContextType {
   formData: BillFormData;
   addItem: () => void;
   removeItem: (id: number) => void;
-  updateItem: (id: number, field: keyof ProductItem, value: any) => void;
+  updateItem: (
+    id: number,
+    field: keyof ProductItem,
+    value: string | number
+  ) => void;
   updateCustomerInfo: (
     field: keyof Omit<BillFormData, "items">,
-    value: any
+    value: string | number
   ) => void;
   calculateTotal: () => {
     total: number;
@@ -107,7 +111,11 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
-  const updateItem = (id: number, field: keyof ProductItem, value: any) => {
+  const updateItem = (
+    id: number,
+    field: keyof ProductItem,
+    value: string | number
+  ) => {
     setFormData((prev) => ({
       ...prev,
       products: prev.products.map((item) =>
@@ -133,7 +141,7 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
 
   const updateCustomerInfo = (
     field: keyof Omit<BillFormData, "items">,
-    value: any
+    value: string | number
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -144,7 +152,7 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
   const calculateTotal = () => {
     let discountedAmount = 0;
 
-    const total = formData.products.reduce((acc, item) => {
+    const productsTotal = formData.products.reduce((acc, item) => {
       const size = Number(item.size) || 0;
       const quantity = Number(item.quantity) || 0;
       const rate = Number(item.rate) || 0;
@@ -156,16 +164,17 @@ export const BillingProvider = ({ children }: { children: ReactNode }) => {
       return acc + baseAmount;
     }, 0);
 
-    const totalWithPrevious =
-      total +
+    // Total Amount (without received amount effect)
+    const total =
+      productsTotal +
       (Number(formData.previousAmount) || 0) +
       (Number(formData.hardwareAmount) || 0) -
-      discountedAmount -
-      Number(formData.receivedAmount);
+      discountedAmount;
 
-    const grandTotal = totalWithPrevious;
+    // Grand Total (with received amount deducted)
+    const grandTotal = total - (Number(formData.receivedAmount) || 0);
 
-    return { total: totalWithPrevious, discountedAmount, grandTotal };
+    return { total, discountedAmount, grandTotal };
   };
 
   return (

@@ -234,7 +234,7 @@ export default function HardwareBilling() {
                   <th>Remove</th>
                 </tr>
               </thead>
-              <tbody style={{ textAlign: "center"}}>
+              <tbody style={{ textAlign: "center" }}>
                 {formData.products.map((item, index) => (
                   <tr key={item.id}>
                     <td>{index + 1}</td>

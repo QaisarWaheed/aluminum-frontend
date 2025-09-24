@@ -70,14 +70,16 @@ export default function AluminumBilling() {
         updateCustomerInfo("invoiceNo", response.data.invoiceNo);
       }
       window.location.reload();
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         alert(
           "Error saving bill: " +
             (error.response?.data?.message || error.message)
         );
-      } else {
+      } else if (error instanceof Error) {
         alert("Error saving bill: " + error.message);
+      } else {
+        alert("Error saving bill: An unknown error occurred.");
       }
     }
   };
@@ -86,15 +88,25 @@ export default function AluminumBilling() {
     const { name, value, type } = e.target;
     let newValue: string | number = value;
     if (type === "number") newValue = value === "" ? "" : Number(value);
-    updateCustomerInfo(name as any, newValue);
+    updateCustomerInfo(name as keyof typeof formData, newValue);
   };
+
+  type ItemField =
+    | "section"
+    | "size"
+    | "quantity"
+    | "gaje"
+    | "color"
+    | "rate"
+    | "discount"
+    | "amount";
 
   const handleItemChange = (
     id: number,
-    field: string,
+    field: ItemField,
     value: string | number
   ) => {
-    updateItem(id, field as any, value);
+    updateItem(id, field, value);
   };
 
   const { total, discountedAmount, grandTotal } = calculateTotal();
@@ -243,7 +255,7 @@ export default function AluminumBilling() {
                     <th>Remove</th>
                   </tr>
                 </thead>
-                <tbody style={{ textAlign: "center"}}>
+                <tbody style={{ textAlign: "center" }}>
                   {formData.products.map((item, index) => (
                     <tr key={item.id}>
                       <td>{index + 1}</td>
@@ -406,7 +418,7 @@ export default function AluminumBilling() {
                 />
                 <div
                   style={{
-                    backgroundColor: "#f9f9f9",
+                    backgroundColor: "green",
                     border: "1px solid #eee",
                     padding: "5px",
                     flex: "1 1 120px",
@@ -427,11 +439,11 @@ export default function AluminumBilling() {
                 />
                 <div
                   style={{
-                    backgroundColor: "#f9f9f9",
+                    backgroundColor: "yellow",
                     border: "1px solid #eee",
                     padding: "5px",
                     flex: "1 1 120px",
-                    minWidth: 120,
+                    minWidth: 100,
                   }}
                 >
                   <strong>Grand Amount:</strong> Rs. {grandTotal.toFixed(2)}
