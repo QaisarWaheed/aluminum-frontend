@@ -16,6 +16,7 @@ import { useBilling } from "./context/AluminumContext";
 import "../App.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { IconTrash } from "@tabler/icons-react";
 
 export default function AluminumBilling() {
   const {
@@ -250,27 +251,48 @@ export default function AluminumBilling() {
                 highlightOnHover
                 style={{ minWidth: 900, borderCollapse: "collapse" }}
               >
-                <thead>
-                  <tr>
-                    <th>S/No</th>
-                    <th>Section</th>
-                    <th>Size</th>
-                    <th>Quantity</th>
-                    <th>Gaje</th>
-                    <th>Color</th>
-                    <th>Rate</th>
-                    <th style={{ width: 80 }}>
-                      <span style={{ fontSize: "13px" }}>Discount %</span>
-                    </th>
-                    <th>Amount</th>
-                    <th>Remove</th>
-                  </tr>
-                </thead>
-                <tbody style={{ textAlign: "center" }}>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th style={{ minWidth: 60, fontSize: 18 }}>
+                      S/No
+                    </Table.Th>
+                    <Table.Th style={{ minWidth: 140, fontSize: 18 }}>
+                      Section
+                    </Table.Th>
+                    <Table.Th style={{ minWidth: 120, fontSize: 18 }}>
+                      Size
+                    </Table.Th>
+                    <Table.Th style={{ minWidth: 120, fontSize: 18 }}>
+                      Quantity
+                    </Table.Th>
+                    <Table.Th style={{ minWidth: 120, fontSize: 18 }}>
+                      Gaje
+                    </Table.Th>
+                    <Table.Th style={{ minWidth: 120, fontSize: 18 }}>
+                      Color
+                    </Table.Th>
+                    <Table.Th style={{ minWidth: 120, fontSize: 18 }}>
+                      Rate
+                    </Table.Th>
+                    <Table.Th
+                      align={"center"}
+                      style={{ minWidth: 150, fontSize: 18 }}
+                    >
+                      <span style={{ fontSize: "16px" }}>Discount %</span>
+                    </Table.Th>
+                    <Table.Th style={{ minWidth: 110, fontSize: 18 }}>
+                      Amount
+                    </Table.Th>
+                    <Table.Th style={{ minWidth: 60 }}></Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody style={{ textAlign: "center" }}>
                   {formData.products.map((item, index) => (
-                    <tr key={item.id}>
-                      <td>{index + 1}</td>
-                      <td>
+                    <Table.Tr key={item.id}>
+                      <Table.Td style={{ minWidth: 60, fontSize: 16 }}>
+                        {index + 1}
+                      </Table.Td>
+                      <Table.Td style={{ minWidth: 140, fontSize: 16 }}>
                         <TextInput
                           value={item.section}
                           onChange={(e) =>
@@ -281,8 +303,8 @@ export default function AluminumBilling() {
                             )
                           }
                         />
-                      </td>
-                      <td>
+                      </Table.Td>
+                      <Table.Td style={{ minWidth: 120, fontSize: 16 }}>
                         <TextInput
                           value={item.size}
                           onChange={(e) =>
@@ -293,8 +315,8 @@ export default function AluminumBilling() {
                             )
                           }
                         />
-                      </td>
-                      <td>
+                      </Table.Td>
+                      <Table.Td style={{ minWidth: 120, fontSize: 16 }}>
                         <TextInput
                           type="number"
                           value={item.quantity}
@@ -306,8 +328,8 @@ export default function AluminumBilling() {
                             )
                           }
                         />
-                      </td>
-                      <td>
+                      </Table.Td>
+                      <Table.Td style={{ minWidth: 120, fontSize: 16 }}>
                         <Select
                           data={["0.9", "1.1", "1.2", "1.4", "1.6", "2.0"]}
                           value={item.gaje}
@@ -316,8 +338,8 @@ export default function AluminumBilling() {
                           }
                           checkIconPosition="right"
                         />
-                      </td>
-                      <td>
+                      </Table.Td>
+                      <Table.Td style={{ minWidth: 120, fontSize: 16 }}>
                         <Select
                           data={[
                             "CH",
@@ -335,8 +357,8 @@ export default function AluminumBilling() {
                           checkIconPosition="right"
                           allowDeselect
                         />
-                      </td>
-                      <td>
+                      </Table.Td>
+                      <Table.Td style={{ minWidth: 120, fontSize: 16 }}>
                         <TextInput
                           type="number"
                           value={item.rate}
@@ -348,8 +370,8 @@ export default function AluminumBilling() {
                             )
                           }
                         />
-                      </td>
-                      <td style={{ width: 80 }}>
+                      </Table.Td>
+                      <Table.Td style={{ minWidth: 150, fontSize: 16 }}>
                         <TextInput
                           type="number"
                           value={item.discount}
@@ -360,20 +382,22 @@ export default function AluminumBilling() {
                               Number(e.currentTarget.value)
                             )
                           }
-                          style={{ fontSize: "13px" }} // Smaller font for discount input
+                          style={{ fontSize: "15px" }}
                         />
-                      </td>
-                      <td>{Number(item.amount)}</td>
-                      <td>
+                      </Table.Td>
+                      <Table.Td style={{ minWidth: 110, fontSize: 16 }}>
+                        <TextInput type="number" value={item.amount} readOnly />
+                      </Table.Td>
+                      <Table.Td style={{ minWidth: 60 }}>
                         <Button
                           color="red"
                           size="xs"
                           onClick={() => removeItem(item.id)}
                         >
-                          Remove
+                          <IconTrash size={12} />
                         </Button>
-                      </td>
-                    </tr>
+                      </Table.Td>
+                    </Table.Tr>
                   ))}
                   {/* Summary row for Discounted Amount and Total Bill */}
                   <tr>
@@ -391,7 +415,7 @@ export default function AluminumBilling() {
                         padding: 0,
                         border: 0,
                         background: "none",
-                        width: 200,
+                        width: 150,
                       }}
                     >
                       <div
@@ -437,7 +461,7 @@ export default function AluminumBilling() {
                     {/* Remove column: empty */}
                     <td></td>
                   </tr>
-                </tbody>
+                </Table.Tbody>
               </Table>
             </div>
           </ScrollArea>
